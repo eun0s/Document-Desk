@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Document Desk</title>
+<meta name="application-name" content="Document Desk">
+<meta name="theme-color" content="#6e4526">
+<meta name="description" content="A skeuomorphic writing desk with folders, sticky notes, a focus timer and ambient music.">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Desk">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Special+Elite&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script src="https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/htm@3.1.1/dist/htm.umd.js"></script>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:#4a2c17;font-family:Lora,Georgia,serif;color:#2b1a0e}
+.wood{background:
+ repeating-linear-gradient(92deg,rgba(0,0,0,.07) 0 2px,transparent 2px 9px),
+ repeating-linear-gradient(88deg,rgba(255,220,170,.06) 0 1px,transparent 1px 23px),
+ linear-gradient(180deg,#8a5a34,#6e4526 60%,#7b4e2c)}
+.shelf{background:
+ repeating-linear-gradient(90deg,rgba(0,0,0,.09) 0 1px,transparent 1px 7px),
+ linear-gradient(180deg,#a2703f,#7d522b);box-shadow:0 8px 0 #3d2412,0 18px 24px rgba(0,0,0,.55),inset 0 2px 0 rgba(255,230,190,.35)}
+.blotter{background:
+ radial-gradient(ellipse at 30% 20%,rgba(255,255,255,.08),transparent 60%),
+ repeating-linear-gradient(45deg,rgba(0,0,0,.05) 0 1px,transparent 1px 4px),#3b3f3a;
+ box-shadow:0 14px 30px rgba(0,0,0,.55),inset 0 0 0 6px #2a2d29,inset 0 0 0 7px rgba(255,255,255,.08)}
+.paper{background:
+ linear-gradient(transparent 31px,rgba(80,110,160,.22) 32px) 0 0/100% 32px,
+ radial-gradient(circle at 20% 10%,#fffdf6,#f6efdc);box-shadow:0 6px 16px rgba(0,0,0,.45),0 1px 0 #fff inset}
+.paper textarea{line-height:32px;background:transparent}
+.manila{background:linear-gradient(180deg,#e8c982,#d6b268);box-shadow:0 5px 10px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.5)}
+.sticky{background:linear-gradient(160deg,#fff08a,#f7d94a);box-shadow:0 10px 18px rgba(0,0,0,.45),inset 0 -20px 30px rgba(180,130,0,.12);transform:rotate(1.2deg)}
+.metal{background:linear-gradient(180deg,#e9e3d8,#b9b0a1 50%,#d2cabb);box-shadow:0 3px 6px rgba(0,0,0,.5),inset 0 1px 0 #fff}
+.metal:active{box-shadow:inset 0 2px 4px rgba(0,0,0,.5);transform:translateY(1px)}
+.strip{background:repeating-linear-gradient(90deg,rgba(0,0,0,.1) 0 1px,transparent 1px 6px),linear-gradient(180deg,#9a6a3b,#6a4122);clip-path:polygon(7% 0,93% 0,100% 100%,0 100%);box-shadow:inset 0 3px 0 rgba(255,230,190,.4)}
+.hand{font-family:Caveat,'Comic Sans MS',cursive}
+@keyframes bar{0%,100%{height:15%}50%{height:100%}}
+.typed{font-family:'Special Elite','Courier New',monospace}
+.slip{background:radial-gradient(circle at 20% 10%,#fffdf6,#efe6cf);box-shadow:0 20px 40px rgba(0,0,0,.6);animation:slip .28s cubic-bezier(.2,.9,.3,1.2)}
+@keyframes slip{from{transform:translateY(-50px) rotate(-3deg);opacity:0}to{transform:none;opacity:1}}
+.tagtab{font-family:Caveat,cursive;font-size:20px;line-height:1}
+.drawer{background:linear-gradient(180deg,#8d5d33,#5f3a1d);box-shadow:0 4px 8px rgba(0,0,0,.6),inset 0 2px 0 rgba(255,230,190,.35)}
+.btn{background:linear-gradient(180deg,#e9e3d8,#b9b0a1 50%,#d2cabb);box-shadow:0 2px 4px rgba(0,0,0,.4);border-radius:4px;padding:4px 12px;color:#2b1a0e;font-size:14px}
+.btn:active{transform:translateY(1px)}
+.night .paper{filter:sepia(.22) brightness(1.08);box-shadow:0 0 70px 8px rgba(255,185,90,.38),0 6px 16px rgba(0,0,0,.5)}
+.night .blotter{position:relative;z-index:25;box-shadow:0 0 90px 10px rgba(255,170,70,.2),0 14px 30px rgba(0,0,0,.6),inset 0 0 0 6px #2a2d29,inset 0 0 0 7px rgba(255,255,255,.08)}
+.lampbtn svg{overflow:visible}
+.stampmark{font-family:'Special Elite','Courier New',monospace;position:absolute;pointer-events:none;border:3px double currentColor;border-radius:4px;padding:2px 10px;font-size:clamp(15px,2.4vw,24px);letter-spacing:.14em;opacity:.86;mix-blend-mode:multiply;filter:url(#ink);animation:thunk .28s ease-out;white-space:nowrap;font-weight:bold;transform:translate(-50%,-50%) rotate(var(--r,0deg))}
+@keyframes thunk{from{transform:translate(-50%,-50%) scale(1.6) rotate(var(--r,0deg));opacity:0}}
+@keyframes dropd{from{opacity:0;transform:translateY(-10px)}}
+.drop{animation:dropd .25s ease-out}
+@keyframes crumple{0%{transform:none;border-radius:2px;filter:none}35%{transform:scale(.5,.55) rotate(-7deg);border-radius:35%;filter:contrast(1.25) brightness(.93)}70%{transform:scale(.2) rotate(30deg);border-radius:50%}100%{transform:scale(.1) rotate(80deg);border-radius:50%}}
+.ball{background:radial-gradient(circle at 35% 30%,#fff,#ebe3cd 55%,#b9ae92);clip-path:polygon(50% 0,70% 8%,95% 25%,100% 55%,85% 85%,55% 100%,25% 92%,5% 65%,0 35%,22% 8%);animation:toss .75s cubic-bezier(.35,0,.7,.7) forwards}
+@keyframes toss{0%{transform:translate(0,0) scale(1) rotate(0)}50%{transform:translate(calc(var(--dx)*.55),calc(var(--dy)*.5 - 110px)) scale(.9) rotate(260deg)}100%{transform:translate(var(--dx),var(--dy)) scale(.55) rotate(520deg)}}
+@keyframes wiggle{0%,100%{transform:rotate(0)}25%{transform:rotate(-8deg)}50%{transform:rotate(7deg)}75%{transform:rotate(-4deg)}}
+.wiggle{animation:wiggle .5s}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+const {useState,useEffect,useRef,useMemo}=React;
+const html=htm.bind(React.createElement);
+const ls={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){let ok=true;try{localStorage.setItem(k,JSON.stringify(v))}catch(e){ok=false}try{dispatchEvent(new CustomEvent('desk-save',{detail:ok}))}catch(e){}}};
+
+const uid=()=>Math.random().toString(36).slice(2,9);
+const DEF_FOLDERS=[{id:'f1',name:'Drafts'},{id:'f2',name:'Research'},{id:'f3',name:'Reading'},{id:'f4',name:'Archive'}];
+const DEF_TAGS=['Writing','Reading','Ideas'];
+const LEGACY_SEED=[
+ {id:1,folder:'f1',tag:'Writing',star:true,title:'Chapter Three: The Lighthouse',body:'The lamp had not been lit in eleven winters, but Marta climbed the stairs anyway, one hand on the cold iron rail.\n\nAt the top, the glass was fogged with salt.'},
+ {id:2,folder:'f1',tag:'Ideas',star:false,title:'Essay outline: slow reading',body:'1. Why we skim\n2. What a margin note does\n3. A case for paper'},
+ {id:3,folder:'f2',tag:'Reading',star:true,title:'Notes on tide tables',body:'Spring tides follow new and full moons. Check the almanac for the harbour entry.'},
+ {id:4,folder:'f3',tag:'Reading',star:false,title:'The Gutenberg Parenthesis',body:'Highlights to revisit: oral culture, print, and what comes after.'},
+ {id:5,folder:'f4',tag:'Writing',star:false,title:'Old letter to Samir',body:'Dear Samir, I never did send this one. The weather here has finally turned.'}
+];
+const SEED=[];
+const loadDocs=()=>ls.get('desk.docs',SEED).map(d=>{const f=DEF_FOLDERS.find(x=>x.name===d.folder);return f?{...d,folder:f.id}:d});
+
+(()=>{const st=d=>({id:d.id,folder:d.folder,tag:d.tag,star:d.star,title:d.title,body:d.body});
+ const d=ls.get('desk.docs',null);
+ if(d&&JSON.stringify(loadDocs().map(st))===JSON.stringify(LEGACY_SEED.map(st))){
+  ls.set('desk.docs',[]);
+  if(JSON.stringify(ls.get('desk.folders',null))===JSON.stringify(DEF_FOLDERS))ls.set('desk.folders',[]);
+  if(JSON.stringify(ls.get('desk.tags',null))===JSON.stringify(DEF_TAGS))ls.set('desk.tags',[]);
+  if(ls.get('desk.sticky',null)==='Call the printer\nBuy ink + stamps\nFinish ch. 3 by Fri')ls.set('desk.sticky','')}})();
+/* ---------- audio ---------- */
+function chime(){try{const AC=window.AudioContext||window.webkitAudioContext;const c=new AC();[660,880,1100].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.frequency.value=f;g.gain.setValueAtTime(.15,c.currentTime+i*.25);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+i*.25+.9);o.connect(g);g.connect(c.destination);o.start(c.currentTime+i*.25);o.stop(c.currentTime+i*.25+1)})}catch(e){}}
+function parseYT(u){try{const x=new URL(u),h=x.hostname.replace('www.','');let id=null;const list=x.searchParams.get('list');
+ if(h==='youtu.be')id=x.pathname.slice(1);
+ else if(h.endsWith('youtube.com')||h.endsWith('youtube-nocookie.com'))id=x.searchParams.get('v')||(x.pathname.match(/^\/(?:live|embed|shorts)\/([\w-]+)/)||[])[1];
+ else return null;
+ if(id&&id!=='videoseries')return 'https://www.youtube-nocookie.com/embed/'+id+'?autoplay=1&playsinline=1'+(list?'&list='+list:'');
+ if(list)return 'https://www.youtube-nocookie.com/embed/videoseries?autoplay=1&list='+list;return null}catch(e){return null}}
+
+/* ---------- clock ---------- */
+function Clock(){
+ const [t,setT]=useState(new Date());
+ useEffect(()=>{const i=setInterval(()=>setT(new Date()),1000);return()=>clearInterval(i)},[]);
+ const s=t.getSeconds(),m=t.getMinutes()+s/60,h=(t.getHours()%12)+m/60;
+ const hand=(a,l,w,c)=>html`<line x1="50" y1="50" x2=${50+l*Math.sin(a*Math.PI/180)} y2=${50-l*Math.cos(a*Math.PI/180)} stroke=${c} strokeWidth=${w} strokeLinecap="round"/>`;
+ return html`<div className="flex flex-col items-center shrink-0" title=${t.toLocaleDateString()}>
+  <svg viewBox="0 0 100 100" className="w-20 h-20 md:w-24 md:h-24 drop-shadow-[0_6px_6px_rgba(0,0,0,.55)]">
+   <circle cx="50" cy="50" r="48" fill="#3a2212"/><circle cx="50" cy="50" r="44" fill="#c9a24a"/><circle cx="50" cy="50" r="41" fill="#fbf5e4"/>
+   ${[...Array(12)].map((_,i)=>html`<line key=${i} x1=${50+34*Math.sin(i*Math.PI/6)} y1=${50-34*Math.cos(i*Math.PI/6)} x2=${50+39*Math.sin(i*Math.PI/6)} y2=${50-39*Math.cos(i*Math.PI/6)} stroke="#3a2212" strokeWidth=${i%3?1:2}/>`)}
+   ${hand(h*30,22,3.2,'#2b1a0e')}${hand(m*6,32,2.2,'#2b1a0e')}${hand(s*6,35,.8,'#a8321f')}
+   <circle cx="50" cy="50" r="2.5" fill="#a8321f"/>
+  </svg>
+  <div className="text-[11px] text-amber-100/90 mt-0.5 tabular-nums">${t.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</div>
+ </div>`;
+}
+
+/* ---------- sticky ---------- */
+function Sticky(){
+ const [v,setV]=useState(()=>ls.get('desk.sticky',''));
+ useEffect(()=>ls.set('desk.sticky',v),[v]);
+ return html`<div className="sticky rounded-sm p-3 pt-5 relative flex-1 min-h-[170px] flex flex-col">
+  <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-16 h-4 bg-white/40 rotate-[-2deg] shadow"></div>
+  <textarea value=${v} onChange=${e=>setV(e.target.value)} placeholder="Jot something down…" aria-label="Sticky note"
+   className="hand flex-1 w-full resize-none bg-transparent outline-none text-2xl leading-7 text-[#3b2a05] placeholder-[#3b2a05]/40"/>
+ </div>`;
+}
+
+/* ---------- pomodoro ---------- */
+const DEF_CFG={focus:25,break:5,long:15},MODE_L={focus:'Focus',break:'Break',long:'Long'};
+const WOOD='repeating-linear-gradient(92deg,rgba(0,0,0,.08) 0 2px,transparent 2px 9px),linear-gradient(180deg,#a2703f,#6e4526)';
+function Pomodoro(){
+ const init=useMemo(()=>{const c={...DEF_CFG,...ls.get('desk.pomoCfg',{})},t=ls.get('desk.timer',null);
+  if(!t||!MODE_L[t.mode])return {mode:'focus',left:c.focus*60,run:false,done:0};
+  return t.run?{...t,left:Math.max(0,Math.ceil((t.endAt-Date.now())/1000))}:t},[]);
+ const [cfg,setCfg]=useState(()=>({...DEF_CFG,...ls.get('desk.pomoCfg',{})})),[open,setOpen]=useState(()=>ls.get('desk.pomoOpen',true)),[edit,setEdit]=useState(false);
+ const [mode,setMode]=useState(init.mode),[left,setLeft]=useState(init.left),[run,setRun]=useState(init.run),[done,setDone]=useState(init.done);
+ const endAt=useRef(Date.now()+init.left*1000);
+ useEffect(()=>{ls.set('desk.pomoCfg',cfg)},[cfg]);
+ useEffect(()=>{ls.set('desk.pomoOpen',open)},[open]);
+ useEffect(()=>{if(!run)return;endAt.current=Date.now()+left*1000;const i=setInterval(()=>setLeft(Math.max(0,Math.ceil((endAt.current-Date.now())/1000))),500);return()=>clearInterval(i)},[run]);
+ useEffect(()=>{ls.set('desk.timer',{mode,left,run,done,endAt:endAt.current})},[mode,left,run,done]);
+ useEffect(()=>{if(left<=0&&run){chime();if(mode==='focus'){const d=done+1;setDone(d);pick(d%4===0?'long':'break')}else pick('focus')}},[left]);
+ const pick=m=>{setMode(m);setRun(false);setLeft(cfg[m]*60)};
+ const setMin=(k,v)=>{const n=Math.max(1,Math.min(180,Math.round(+v)||1));setCfg(c=>({...c,[k]:n}));if(k===mode&&!run)setLeft(n*60)};
+ const frac=Math.max(0,Math.min(1,left/(cfg[mode]*60))),R=40,C=2*Math.PI*R;
+ const mm=String(Math.floor(left/60)).padStart(2,'0'),ss=String(left%60).padStart(2,'0');
+ return html`<div className="rounded-lg overflow-hidden" style=${{background:WOOD,boxShadow:'0 12px 20px rgba(0,0,0,.55), inset 0 2px 0 rgba(255,230,190,.35)'}}>
+  <div className="flex items-center gap-2 px-3 py-1.5">
+   <button onClick=${()=>setOpen(!open)} aria-expanded=${open} aria-label=${open?'Compact the timer':'Drop the timer down'} className="flex items-center gap-2 flex-1 min-w-0 text-left">
+    <span className="text-amber-100 text-xs" style=${{display:'inline-block',transition:'transform .2s',transform:open?'none':'rotate(-90deg)'}}>▾</span>
+    <span className="hand text-xl text-amber-100 leading-none">Pomodoro</span>
+    ${!open&&html`<span className="typed text-amber-100 text-sm tabular-nums ml-auto">${mm}:${ss}</span>`}</button>
+   ${!open&&html`<button onClick=${()=>setRun(!run)} aria-label=${run?'Pause':'Start'} className="metal rounded-full w-7 h-7 text-xs text-stone-800">${run?'⏸':'▶'}</button>`}
+  </div>
+  ${open&&html`<div className="drop px-3 pb-3 flex flex-col items-center">
+   <div className="flex gap-1 mb-2">${Object.keys(MODE_L).map(k=>html`<button key=${k} onClick=${()=>pick(k)} className=${'typed px-2.5 py-0.5 text-xs rounded '+(mode===k?'bg-[#f4ecd8] text-stone-900 shadow':'bg-black/25 text-amber-100 hover:bg-black/35')}>${MODE_L[k]}</button>`)}</div>
+   <div className="relative w-36 h-36">
+    <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90 drop-shadow-[0_4px_5px_rgba(0,0,0,.45)]">
+     <circle cx="50" cy="50" r="47" fill="#5a3a1d"/><circle cx="50" cy="50" r="44" fill="#b8902f"/><circle cx="50" cy="50" r="41" fill="#f4ecd8"/>
+     <circle cx="50" cy="50" r=${R} fill="none" stroke="#e3d6b4" strokeWidth="7"/>
+     <circle cx="50" cy="50" r=${R} fill="none" stroke=${mode==='focus'?'#8c2f1b':'#4f6b3a'} strokeWidth="7" strokeDasharray=${C} strokeDashoffset=${C*(1-frac)} strokeLinecap="round" style=${{transition:'stroke-dashoffset 1s linear'}}/>
+    </svg>
+    <div className="absolute inset-0 flex flex-col items-center justify-center"><div className="typed text-3xl tabular-nums text-[#3a2a14]">${mm}:${ss}</div><div className="typed text-[11px] text-[#6b5326]">${MODE_L[mode]}, ${done} done</div></div>
+   </div>
+   <div className="flex gap-2 mt-2">
+    <button onClick=${()=>setRun(!run)} className="metal rounded px-4 py-1 text-sm font-semibold text-stone-800">${run?'Pause':'Start'}</button>
+    <button onClick=${()=>pick(mode)} className="metal rounded px-3 py-1 text-sm text-stone-800">Reset</button>
+    <button onClick=${()=>setEdit(!edit)} aria-pressed=${edit} title="Set the times" aria-label="Set the times" className=${'metal rounded px-2 py-1 text-sm text-stone-800 '+(edit?'ring-2 ring-amber-300':'')}>⚙</button></div>
+   ${edit&&html`<div className="drop slip typed mt-2 rounded-sm px-3 py-2 text-xs text-stone-800 flex items-center gap-2 flex-wrap justify-center">
+    ${Object.keys(MODE_L).map(k=>html`<label key=${k} className="flex items-center gap-1">${MODE_L[k]}<input type="number" min="1" max="180" value=${cfg[k]} onChange=${e=>setMin(k,e.target.value)} className="typed w-11 bg-white/60 border-b-2 border-stone-600 text-center outline-none"/></label>`)}<span className="text-stone-500">min</span></div>`}
+  </div>`}
+ </div>`;
+}
+
+/* ---------- media strip ---------- */
+function Radio({tracks,i,on,onAdd,onPlay,onRm,onClose}){
+ const [url,setUrl]=useState(''),[name,setName]=useState(''),[err,setErr]=useState('');
+ const go=()=>{const r=onAdd(url,name.trim());if(r)setErr(r);else onClose()};
+ const kind={synth:'synth',file:'file',stream:'radio',yt:'video'};
+ const line='typed w-full bg-transparent border-b-2 border-stone-700 outline-none py-1';
+ return html`<${Modal} title="Radio dial" onClose=${onClose}>
+  <label className="text-sm text-stone-600">Station link: a YouTube video or live stream, or a direct audio URL</label>
+  <input autoFocus value=${url} onChange=${e=>setUrl(e.target.value)} onKeyDown=${e=>e.key==='Enter'&&go()} placeholder="https://…" className=${line+' mt-1'}/>
+  <input value=${name} onChange=${e=>setName(e.target.value)} onKeyDown=${e=>e.key==='Enter'&&go()} placeholder="Label (optional)" maxLength="40" className=${line+' mt-2 text-sm'}/>
+  ${err&&html`<p className="text-xs mt-1 text-red-800">${err}</p>`}
+  <${Row}><button className="btn" onClick=${onClose}>Close</button><button className="btn font-semibold" onClick=${go}>Tune in</button><//>
+  <div className="mt-4 pt-2 border-t border-dashed border-stone-400"><div className="text-sm mb-1">On the shelf</div>
+   <ul className="max-h-40 overflow-y-auto text-sm">${!tracks.length&&html`<li className="text-stone-500">Nothing on the shelf yet.</li>`}${tracks.map((t,k)=>html`<li key=${t.id} className="flex items-center gap-2 py-0.5">
+    <button onClick=${()=>{onPlay(k);onClose()}} className=${'flex-1 text-left truncate hover:underline '+(k===i?'font-bold':'')}>${k===i&&on?'▶ ':''}${t.name} <span className="text-stone-500 text-xs">(${kind[t.kind]})</span></button>
+    ${t.kind!=='synth'&&html`<button aria-label=${'Remove '+t.name} onClick=${()=>onRm(t.id)} className="text-xs hover:text-red-700">✕</button>`}</li>`)}</ul>
+   <p className="text-xs text-stone-500 mt-1">Load audio files with the ⏏ button; they last until you close the tab. Station links are remembered.</p></div><//>`;
+}
+function MediaStrip(){
+ const [tracks,setTracks]=useState(()=>ls.get('desk.streams',[]));
+ const [i,setI]=useState(0),[on,setOn]=useState(false),[vol,setVol]=useState(()=>ls.get('desk.vol',0.6)),[msg,setMsg]=useState(''),[yt,setYt]=useState(null),[dlg,setDlg]=useState(false),[url,setUrl]=useState(''),[showUrl,setShowUrl]=useState(false);
+ const a=useRef(null),fileIn=useRef(null);
+ const [ytn,setYtn]=useState(0);
+ const curEl=useRef(null),ytRef=useRef(null),lastPrev=useRef(0),holdRef=useRef(null),ac=useRef(null),ctxR=useRef(null),meter=useRef('sim'),curRef=useRef(null),needle=useRef(null);
+ if(!a.current)a.current=new Audio();
+ if(!ac.current){ac.current=new Audio();ac.current.crossOrigin='anonymous'}
+ const cur=tracks[i]||tracks[0]||{name:'No music loaded'};
+ useEffect(()=>{let raf,v=0,t=Math.random()*10;const loop=()=>{t+=.05;let tg=0;
+  if(on){const x=ctxR.current;
+   if(meter.current==='real'&&x){x.an.getByteTimeDomainData(x.buf);let sm=0;for(let k=0;k<x.buf.length;k++){const d=(x.buf[k]-128)/128;sm+=d*d}tg=Math.min(1,Math.max(0,(20*Math.log10(Math.sqrt(sm/x.buf.length)+1e-4)+42)/42))}
+   else tg=Math.max(.05,.5+.22*Math.sin(t*1.7)+.16*Math.sin(t*4.1+1)+.1*Math.sin(t*9.3)+.06*Math.sin(t*17))}
+  v+=(tg-v)*(tg>v?.4:.1);if(needle.current)needle.current.style.transform='rotate('+(-50+Math.min(1,v)*100)+'deg)';raf=requestAnimationFrame(loop)};loop();return()=>cancelAnimationFrame(raf)},[on]);
+ useEffect(()=>{ls.set('desk.streams',tracks.filter(t=>t.kind==='stream'||t.kind==='yt'))},[tracks]);
+ useEffect(()=>{ls.set('desk.vol',vol);a.current.volume=vol;ac.current.volume=vol},[vol]);
+ const halt=()=>{a.current.pause();ac.current.pause();setYt(null)};
+ const fail=()=>{setOn(false);setMsg('Couldn’t play that. It may not be a direct audio link, or the browser blocked it.')};
+ const ensureCtx=()=>{if(ctxR.current)return ctxR.current;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;
+  try{const c=new AC(),an=c.createAnalyser();an.fftSize=1024;const src=c.createMediaElementSource(ac.current);src.connect(an);an.connect(c.destination);ctxR.current={c,an,buf:new Uint8Array(an.fftSize)}}catch(e){return null}return ctxR.current};
+ const playPlain=t=>{meter.current='sim';const el=a.current;curEl.current=el;el.src=t.url;el.play().catch(fail)};
+ const play=(idx,list=tracks)=>{const t=list[idx];if(!t)return;halt();setI(idx);setMsg('');setOn(true);curRef.current=t;
+  if(t.kind==='yt'){meter.current='sim';curEl.current=null;setYt(t.url.includes('enablejsapi')?t.url:t.url+(t.url.includes('?')?'&':'?')+'enablejsapi=1');setYtn(n=>n+1);return}
+  const x=ensureCtx();if(!x){playPlain(t);return}
+  x.c.resume();meter.current='real';const el=ac.current;curEl.current=el;el.src=t.url;
+  el.play().catch(()=>{if(meter.current==='real'){if(t.kind==='stream')playPlain(t);else fail()}})};
+ const ytCmd=f=>{try{ytRef.current.contentWindow.postMessage(JSON.stringify({event:'command',func:f,args:''}),'*')}catch(e){}};
+ const note=m=>{setMsg(m);setTimeout(()=>setMsg(''),2600)};
+ const toggle=()=>{if(!tracks.length){setMsg('Nothing to play yet. Load a file (⏏) or add a station (📻).');return}
+  const t=curRef.current;
+  if(on){if(t&&t.kind==='yt')ytCmd('pauseVideo');else{a.current.pause();ac.current.pause()}setOn(false);return}
+  if(t&&tracks[i]&&t.id===tracks[i].id){
+   if(t.kind==='yt'){ytCmd('playVideo');setOn(true);return}
+   const el=curEl.current;if(el&&el.src){setOn(true);el.play().catch(fail);return}}
+  play(i)};
+ const seek=(dir,n)=>{const t=curRef.current,el=curEl.current;
+  if(!t||t.kind==='yt'||!el||!isFinite(el.duration)||el.duration<=0){if(n===0)note(t?'Can’t skip through a live stream or YouTube here.':'Nothing loaded to skip through.');return false}
+  el.currentTime=Math.max(0,Math.min(el.duration-.3,el.currentTime+dir*Math.min(20,3+n*.8)));return true};
+ const endHold=tap=>{const h=holdRef.current;if(!h)return;clearTimeout(h.t);clearInterval(h.iv);holdRef.current=null;if(tap&&!h.fired)tap()};
+ const holdProps=(dir,tap)=>({
+  onPointerDown:e=>{if(e.button)return;const h={fired:false,n:0};holdRef.current=h;
+   h.t=setTimeout(()=>{h.fired=true;h.iv=setInterval(()=>{if(!seek(dir,h.n++))clearInterval(h.iv)},130)},380)},
+  onPointerUp:()=>endHold(tap),onPointerLeave:()=>endHold(null),onPointerCancel:()=>endHold(null),
+  onClick:e=>{if(e.detail===0)tap()},onContextMenu:e=>e.preventDefault()});
+ const prevTap=()=>{if(!tracks.length)return;const now=Date.now();if(now-lastPrev.current<1000){lastPrev.current=0;skip(-1);return}lastPrev.current=now;play(i)};
+ const nextTap=()=>skip(1);
+ const skip=d=>{if(!tracks.length)return;const n=(i+d+tracks.length)%tracks.length;on?play(n):setI(n)};
+ const skipRef=useRef();skipRef.current=skip;
+ useEffect(()=>{const A=a.current,C=ac.current,e=()=>skipRef.current(1),erA=()=>fail(),erC=()=>{const t=curRef.current;if(meter.current!=='real')return;if(t&&t.kind==='stream')playPlain(t);else fail()};
+  A.addEventListener('ended',e);C.addEventListener('ended',e);A.addEventListener('error',erA);C.addEventListener('error',erC);
+  return()=>{A.removeEventListener('ended',e);C.removeEventListener('ended',e);A.removeEventListener('error',erA);C.removeEventListener('error',erC)}},[]);
+ const onFiles=e=>{const fs=[...e.target.files];e.target.value='';if(!fs.length)return;
+  const nt=fs.map(f=>({id:uid(),kind:'file',name:f.name.replace(/\.[^.]+$/,''),url:URL.createObjectURL(f)})),nl=[...tracks,...nt];setTracks(nl);play(tracks.length,nl)};
+ const addStream=(url,name)=>{const u=url.trim();let host;
+  try{const x=new URL(u);if(!/^https?:$/.test(x.protocol))throw 0;host=x.hostname.replace('www.','')}catch(e){return 'Enter a full link starting with https://'}
+  const y=parseYT(u),t=y?{id:uid(),kind:'yt',name:name||'YouTube stream',url:y}:{id:uid(),kind:'stream',name:name||host,url:u},nl=[...tracks,t];
+  setTracks(nl);play(nl.length-1,nl);return ''};
+ const goUrl=()=>{if(!url.trim())return;const r=addStream(url,'');if(r)setMsg(r);else{setUrl('');setShowUrl(false)}};
+ const rm=id=>{const idx=tracks.findIndex(t=>t.id===id),t=tracks[idx];if(t.kind==='file')URL.revokeObjectURL(t.url);if(idx===i){halt();setOn(false)}setTracks(tracks.filter(x=>x.id!==id));setI(p=>idx<p?p-1:idx===p?0:p)};
+ const Btn=({onClick,label,children,...rest})=>html`<button onClick=${onClick} aria-label=${label} title=${label} className="metal rounded-full w-7 h-7 shrink-0 flex items-center justify-center text-stone-800 text-xs select-none touch-none" ...${rest}>${children}</button>`;
+ return html`<div className="relative flex-1 min-w-0 max-w-[430px] mx-auto order-last basis-full sm:order-none sm:basis-0">
+  ${showUrl&&html`<div className="slip typed absolute left-1/2 -translate-x-1/2 bottom-full mb-5 w-[min(440px,92vw)] z-30 rounded-sm p-2 flex items-center gap-2 text-stone-800">
+   <input autoFocus value=${url} onChange=${e=>setUrl(e.target.value)} onKeyDown=${e=>{if(e.key==='Enter')goUrl();if(e.key==='Escape')setShowUrl(false)}} placeholder="Paste a YouTube or radio link, press Enter" aria-label="Station link" className="typed flex-1 min-w-0 text-xs px-2 py-1.5 rounded-sm bg-white/60 text-stone-800 placeholder-stone-500 shadow-[inset_0_1px_4px_rgba(0,0,0,.35)] outline-none focus:ring-2 focus:ring-amber-400"/>
+   <button onClick=${goUrl} className="btn text-xs shrink-0">Play link</button>
+   <button onClick=${()=>setDlg(true)} className="btn text-xs shrink-0">Shelf</button></div>`}
+  ${msg&&!showUrl&&html`<div className="typed absolute left-1/2 -translate-x-1/2 bottom-full mb-5 text-[11px] text-amber-100 bg-black/65 rounded px-2 py-0.5 max-w-[92vw] truncate z-30">${msg}</div>`}
+  <div className="strip h-[51px] px-7 grid grid-cols-[1fr_92px_1fr] items-center">
+   <div className="flex items-center gap-2 justify-self-end">
+    <${Btn} label="Previous: tap to replay (tap twice for the last track), hold to rewind" ...${holdProps(-1,prevTap)}>⏮<//>
+    <${Btn} onClick=${toggle} label=${on?'Pause':'Play'}>${on?'⏸':'▶'}<//>
+    <${Btn} label="Next: tap for next track, hold to fast-forward" ...${holdProps(1,nextTap)}>⏭<//>
+   </div>
+   <div aria-hidden="true"></div>
+   <div className="flex items-center gap-2 justify-self-start">
+    <input type="range" min="0" max="1" step="0.02" value=${vol} onChange=${e=>setVol(+e.target.value)} aria-label="Volume" title="Volume" className="w-14 h-7 accent-amber-600 shrink-0"/>
+    <${Btn} onClick=${()=>fileIn.current.click()} label="Load audio files from this computer">⏏<//>
+    <${Btn} onClick=${()=>setShowUrl(v=>!v)} label="Radio: show or hide the station link box"><svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M7 8L17 3"/><circle cx="9" cy="14" r="2.5"/><path d="M15 12h3M15 15h3"/></svg><//>
+   </div></div>
+  <div className="absolute left-1/2 -translate-x-1/2 bottom-[3px] z-10 pointer-events-none flex flex-col items-center drop-shadow-[0_3px_3px_rgba(0,0,0,.55)]" title=${cur.name}>
+   <svg viewBox="0 0 120 74" className="w-[80px] h-[49px] block" role="img" aria-label="VU meter">
+     <defs><linearGradient id="vubr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#e9cf86"/><stop offset=".5" stopColor="#a8803a"/><stop offset="1" stopColor="#6e5120"/></linearGradient>
+      <linearGradient id="vuoff" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#efe3bd"/><stop offset="1" stopColor="#d3c18a"/></linearGradient>
+      <radialGradient id="vulit" cx=".5" cy="1" r="1"><stop offset="0" stopColor="#fff4c4"/><stop offset=".6" stopColor="#ffd98a"/><stop offset="1" stopColor="#f0b85a"/></radialGradient></defs>
+     <rect x="1" y="1" width="118" height="72" rx="8" fill="url(#vubr)"/>
+     <rect x="5" y="5" width="110" height="64" rx="5" fill=${on?'url(#vulit)':'url(#vuoff)'} style=${{transition:'fill .4s'}}/>
+     <path d="M24.8 34.4 A46 46 0 0 1 95.2 34.4" fill="none" stroke="#3a2a14" strokeWidth="1.2"/>
+     <path d="M75.7 20.8 A46 46 0 0 1 95.2 34.4" fill="none" stroke="#b3261e" strokeWidth="3.2"/>
+     <line x1="24.8" y1="34.4" x2="28.6" y2="37.6" stroke="#3a2a14" stroke-width="1.4"/><line x1="32.0" y1="27.5" x2="33.8" y2="29.9" stroke="#3a2a14" stroke-width="0.9"/><line x1="40.6" y1="22.3" x2="42.7" y2="26.8" stroke="#3a2a14" stroke-width="1.4"/><line x1="50.0" y1="19.1" x2="50.7" y2="22.0" stroke="#3a2a14" stroke-width="0.9"/><line x1="60.0" y1="18.0" x2="60.0" y2="23.0" stroke="#3a2a14" stroke-width="1.4"/><line x1="70.0" y1="19.1" x2="69.3" y2="22.0" stroke="#3a2a14" stroke-width="0.9"/><line x1="79.4" y1="22.3" x2="77.3" y2="26.8" stroke="#b3261e" stroke-width="1.4"/><line x1="88.0" y1="27.5" x2="86.2" y2="29.9" stroke="#b3261e" stroke-width="0.9"/><line x1="95.2" y1="34.4" x2="91.4" y2="37.6" stroke="#b3261e" stroke-width="1.4"/>
+     <text x="21" y="46" fontSize="6" fill="#3a2a14" fontFamily="'Special Elite',monospace">-20</text>
+     <text x="70" y="17" fontSize="6" fill="#3a2a14" fontFamily="'Special Elite',monospace">0</text>
+     <text x="93" y="32" fontSize="6" fill="#b3261e" fontFamily="'Special Elite',monospace">+3</text>
+     <text x="60" y="55" fontSize="9" textAnchor="middle" fill="#3a2a14" fontFamily="'Special Elite',monospace" letterSpacing="2">VU</text>
+     <g ref=${needle} style=${{transformOrigin:'60px 64px',transform:'rotate(-50deg)'}}><line x1="60" y1="64" x2="60" y2="19" stroke="#2b1a0e" strokeWidth="1.3" strokeLinecap="round"/></g>
+     <path d="M46 69 A14 14 0 0 1 74 69 Z" fill="#2b2118"/><circle cx="60" cy="64" r="3" fill="#6e5120"/>
+     <path d="M7 7 H70 L40 40 H7 Z" fill="#fff" opacity=".13"/>
+     <rect x="5" y="5" width="110" height="64" rx="5" fill="none" stroke="rgba(0,0,0,.45)" strokeWidth="1.2"/></svg>
+   <div className="typed text-[9px] leading-none w-[80px] truncate text-center px-1 py-[3px] rounded-b-md text-[#3a2a14]" style=${{background:'linear-gradient(180deg,#e9cf86,#a8803a)',boxShadow:'inset 0 1px 0 rgba(255,255,255,.4)',marginTop:'-1px'}}>${cur.name}</div></div>
+  <input ref=${fileIn} type="file" accept="audio/*,.mp3,.m4a,.ogg,.wav,.flac" multiple hidden onChange=${onFiles}/>
+  ${yt&&html`<iframe key=${yt+ytn} ref=${ytRef} src=${yt} title="YouTube audio" allow="autoplay; encrypted-media" className="fixed w-px h-px opacity-0 pointer-events-none left-0 bottom-0"></iframe>`}
+  ${dlg&&html`<${Radio} tracks=${tracks} i=${i} on=${on} onAdd=${addStream} onPlay=${play} onRm=${rm} onClose=${()=>setDlg(false)}/>`}
+ </div>`;
+}
+
+/* ---------- markdown ---------- */
+const h=React.createElement;
+function inl(t,k0){const out=[],re=/(\*\*([^*]+)\*\*|\*([^*\n]+)\*|`([^`]+)`|\[([^\]]+)\]\((https?:\/\/[^)\s]+)\))/g;let last=0,m,n=0;
+ while((m=re.exec(t))){if(m.index>last)out.push(t.slice(last,m.index));const key=k0+'-'+n++;
+  if(m[2])out.push(h('strong',{key},m[2]));else if(m[3])out.push(h('em',{key},m[3]));else if(m[4])out.push(h('code',{key,className:'typed bg-black/10 px-1 rounded text-[15px]'},m[4]));
+  else out.push(h('a',{key,href:m[6],target:'_blank',rel:'noopener noreferrer',className:'underline text-blue-800'},m[5]));last=re.lastIndex}
+ if(last<t.length)out.push(t.slice(last));return out}
+function Md({text}){
+ const L=text.split('\n'),out=[];let i=0,k=0;
+ while(i<L.length){const l=L[i];let m;
+  if(/^```/.test(l)){const b=[];i++;while(i<L.length&&!/^```/.test(L[i]))b.push(L[i++]);i++;out.push(h('pre',{key:k++,className:'typed text-sm bg-black/10 rounded p-2 my-2 overflow-x-auto'},b.join('\n')));continue}
+  if((m=l.match(/^(#{1,3})\s+(.*)/))){const n=m[1].length;out.push(h('h'+n,{key:k++,className:['','text-3xl font-semibold mt-3 mb-1','text-2xl font-semibold mt-3 mb-1','text-xl font-semibold mt-2 mb-1'][n]},inl(m[2],'h'+k)));i++;continue}
+  if(/^(-{3,}|\*{3,})\s*$/.test(l)){out.push(h('hr',{key:k++,className:'my-3 border-stone-400'}));i++;continue}
+  const ul=/^\s*[-*+]\s+/,ol=/^\s*\d+[.)]\s+/;
+  if(ul.test(l)||ol.test(l)){const ord=ol.test(l),re=ord?ol:ul,it=[];while(i<L.length&&re.test(L[i])){it.push(h('li',{key:it.length},inl(L[i].replace(re,''),'l'+k+'-'+it.length)));i++}out.push(h(ord?'ol':'ul',{key:k++,className:(ord?'list-decimal':'list-disc')+' pl-6 my-1'},it));continue}
+  if(/^>\s?/.test(l)){const b=[];while(i<L.length&&/^>\s?/.test(L[i]))b.push(L[i++].replace(/^>\s?/,''));out.push(h('blockquote',{key:k++,className:'border-l-4 border-amber-700/50 pl-3 italic text-stone-600 my-2'},inl(b.join(' '),'q'+k)));continue}
+  if(!l.trim()){i++;continue}
+  const b=[];while(i<L.length&&L[i].trim()&&!/^(#{1,3}\s|```|>|\s*[-*+]\s|\s*\d+[.)]\s|-{3,}\s*$)/.test(L[i]))b.push(L[i++]);
+  if(!b.length)b.push(L[i++]);
+  out.push(h('p',{key:k++,className:'my-2'},b.flatMap((x,j)=>j?[h('br',{key:'br'+j}),...inl(x,'p'+k+'-'+j)]:inl(x,'p'+k+'-'+j))))}
+ return h('div',{className:'leading-7 text-[17px]'},out.length?out:h('p',{className:'text-stone-500 italic'},'Nothing to preview yet.'));
+}
+
+/* ---------- pdf import (loaded on demand) ---------- */
+let pdfP=null;
+const loadPdf=()=>pdfP||(pdfP=new Promise((res,rej)=>{if(window.pdfjsLib)return res(window.pdfjsLib);const sc=document.createElement('script'),B='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';
+ sc.src=B+'pdf.min.js';sc.onload=()=>{pdfjsLib.GlobalWorkerOptions.workerSrc=B+'pdf.worker.min.js';res(window.pdfjsLib)};sc.onerror=()=>{pdfP=null;rej(new Error('pdf'))};document.head.appendChild(sc)}));
+async function pdfText(file){const lib=await loadPdf(),doc=await lib.getDocument({data:await file.arrayBuffer()}).promise,pages=[];
+ for(let p=1;p<=doc.numPages;p++){const c=await(await doc.getPage(p)).getTextContent(),lines=[];let line='',y=null;
+  for(const it of c.items){if(y!==null&&Math.abs(it.transform[5]-y)>2){lines.push(line);line=''}line+=it.str;y=it.transform[5]}
+  lines.push(line);pages.push(lines.join('\n'))}
+ return pages.join('\n\n').trim()}
+
+/* ---------- lamp, stamps, bin ---------- */
+const STAMPS=[{t:'CONFIDENTIAL',c:'#b3261e'},{t:'DRAFT',c:'#1f4e9c'},{t:'APPROVED',c:'#b3261e'},{t:'REVIEWED',c:'#1f4e9c'}];
+function Lamp({on,toggle}){
+ return html`<button onClick=${toggle} aria-pressed=${on} aria-label=${on?'Turn desk lamp off':'Turn desk lamp on'} title=${on?'Pull the chain: lamp off':'Pull the chain: lamp on'} className="lampbtn block w-16 h-[88px]" style=${{filter:on?'drop-shadow(0 0 12px rgba(255,185,80,.8))':'drop-shadow(0 4px 4px rgba(0,0,0,.5))',transition:'filter .5s'}}>
+  <svg viewBox="0 0 70 92" className="w-full h-full">
+   <defs><linearGradient id="brass" x1="0" x2="1"><stop offset="0" stopColor="#7a5a1c"/><stop offset=".4" stopColor="#e3c36b"/><stop offset="1" stopColor="#8a6620"/></linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#2f8a5a"/><stop offset=".55" stopColor="#17583a"/><stop offset="1" stopColor="#0b2f20"/></linearGradient>
+    <linearGradient id="cone" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#ffd27a" stopOpacity=".5"/><stop offset="1" stopColor="#ffb44d" stopOpacity="0"/></linearGradient></defs>
+   <path d="M16 88 Q35 68 54 88 Z" fill="url(#brass)"/><rect x="32" y="40" width="6" height="34" fill="url(#brass)"/><circle cx="35" cy="38" r="5" fill="url(#brass)"/>
+   <path d="M38 38 L62 38 L96 92 L-26 92 L8 38Z" fill="url(#cone)" style=${{opacity:on?1:0,transition:'opacity .6s'}}/>
+   <path d="M5 30 Q5 13 35 13 Q65 13 65 30 L65 36 L5 36 Z" fill="url(#glass)"/>
+   <path d="M12 28 Q14 19 30 17" stroke="#9be3b8" strokeWidth="2" fill="none" opacity=".6" strokeLinecap="round"/>
+   <rect x="4" y="34" width="62" height="4" rx="2" fill="url(#brass)"/>
+   <ellipse cx="35" cy="39.5" rx="27" ry="2.6" fill="#ffd27a" style=${{opacity:on?.95:0,transition:'opacity .5s'}}/>
+   <g style=${{transition:'transform .18s',transform:on?'translateY(6px)':'none'}}><line x1="58" y1="38" x2="58" y2="55" stroke="#d9b45a" strokeWidth="1.4" strokeDasharray="2 1.5"/><circle cx="58" cy="58" r="2.8" fill="url(#brass)"/></g>
+  </svg></button>`;
+}
+function BinModal({trash,onRestore,onForget,onEmpty,onClose}){
+ const [sure,setSure]=useState(false);
+ return html`<${Modal} title="Wastepaper bin" onClose=${onClose}>
+  ${trash.length?html`<ul className="max-h-60 overflow-y-auto text-sm divide-y divide-dashed divide-stone-400">${trash.map(d=>html`<li key=${d.id} className="py-1.5 flex items-center gap-2"><div className="flex-1 min-w-0"><div className="truncate font-semibold">${d.title||'Untitled'}</div><div className="text-xs text-stone-500">from ${d.folderName||'a folder'}, tossed ${new Date(d.removedAt).toLocaleDateString()}</div></div><button className="btn" onClick=${()=>onRestore(d)}>Restore</button><button aria-label="Delete forever" title="Delete forever" className="text-xs hover:text-red-700" onClick=${()=>onForget(d.id)}>✕</button></li>`)}</ul>`:html`<p className="text-sm">The bin is empty. Pages you throw away wait here until you empty it.</p>`}
+  <${Row}><button className="btn" onClick=${onClose}>Close</button>${trash.length>0&&(sure?html`<button className="btn font-semibold" style=${{color:'#8a1c10'}} onClick=${()=>{onEmpty();onClose()}}>Yes, empty it for good</button>`:html`<button className="btn" onClick=${()=>setSure(true)}>Empty bin</button>`)}<//><//>`;
+}
+
+/* ---------- templates ---------- */
+const TPLS=[
+ {k:'blank',n:'Blank lined page',d:'Plain ruled paper',title:'Untitled page',body:()=>''},
+ {k:'memo',n:'Memorandum',d:'To, From, Date and Re header',title:'Memorandum',body:d=>['# MEMORANDUM','','**TO:** ','**FROM:** ','**DATE:** '+d,'**RE:** ','','---','',''].join('\n')},
+ {k:'brief',n:'Brief or pleading',d:'Court caption, headings, signature',title:'Brief',body:d=>['# IN THE [NAME OF COURT]','','**[PLAINTIFF]**, Plaintiff,','','v.','','**[DEFENDANT]**, Defendant.','','Case No. __________','','---','','## [TITLE OF BRIEF]','','### I. INTRODUCTION','','','### II. STATEMENT OF FACTS','','','### III. ARGUMENT','','','### IV. CONCLUSION','','','Dated: '+d,'','Respectfully submitted,','','______________________________','[Attorney Name], Bar No. ______','[Firm, address, telephone, email]'].join('\n')},
+ {k:'contract',n:'Contract',d:'Parties, numbered clauses, signatures',title:'Contract',body:d=>['# [TITLE OF AGREEMENT]','','This Agreement is made on '+d+' between **[PARTY A]** ("Party A") and **[PARTY B]** ("Party B").','','## Recitals','','- Party A [describe background].','- Party B [describe background].','','## 1. Definitions','','## 2. Term','','## 3. Payment','','## 4. Confidentiality','','## 5. Termination','','## 6. Governing Law','','## 7. Entire Agreement','','---','','**PARTY A:** ______________________   Date: ________','','**PARTY B:** ______________________   Date: ________'].join('\n')}];
+function TplModal({onPick,onClose}){
+ return html`<${Modal} title="Choose a page style" onClose=${onClose}>
+  <div className="grid grid-cols-2 gap-2">${TPLS.map(t=>html`<button key=${t.k} onClick=${()=>onPick(t.k)} className="text-left rounded-sm p-3 bg-white/55 hover:bg-white/90 shadow border border-stone-300"><div className="font-semibold text-sm">${t.n}</div><div className="text-xs text-stone-600 mt-0.5">${t.d}</div></button>`)}</div>
+  <${Row}><button className="btn" onClick=${onClose}>Cancel</button><//><//>`;
+}
+
+/* ---------- global search ---------- */
+function snip(text,q){const i=text.toLowerCase().indexOf(q);if(i<0)return null;const a=Math.max(0,i-34),b=Math.min(text.length,i+q.length+60);return [(a>0?'…':'')+text.slice(a,i).replace(/\n/g,' '),text.slice(i,i+q.length),text.slice(i+q.length,b).replace(/\n/g,' ')+(b<text.length?'…':'')]}
+const Snip=({p})=>p?html`<span className="text-stone-600">${p[0]}<mark className="bg-yellow-200 text-stone-900 px-0.5 rounded-sm">${p[1]}</mark>${p[2]}</span>`:null;
+function SearchModal({docs,folders,tags,sticky,onPage,onTag,onFolder,onSticky,onClose}){
+ const [q,setQ]=useState(''),t=q.trim().toLowerCase();
+ const fn=id=>(folders.find(f=>f.id===id)||{}).name||'';
+ const R=useMemo(()=>{if(!t)return null;const pages=[];
+  for(const d of docs){let w=null,p=snip(d.title||'',t);if(p)w='title';else if((p=snip(d.body||'',t)))w='text';else{const c=(d.cites||[]).find(x=>x.t.toLowerCase().includes(t));if(c){p=snip(c.t,t);w='citation'}else if(fn(d.folder).toLowerCase().includes(t)||(d.tag||'').toLowerCase().includes(t)){p=null;w='folder or tag'}}
+   if(w)pages.push({d,w,p})}
+  return {fs:folders.filter(f=>f.name.toLowerCase().includes(t)),ts:tags.filter(x=>x.toLowerCase().includes(t)),pages:pages.slice(0,40),note:snip(sticky||'',t)}},[t,docs,folders,tags,sticky]);
+ const none=R&&!R.fs.length&&!R.ts.length&&!R.pages.length&&!R.note;
+ const row='w-full text-left py-1 px-1 rounded hover:bg-black/10 block';
+ return html`<${Modal} title="Reference index" onClose=${onClose}>
+  <div className="flex items-center gap-2 rounded-full px-3 py-1.5 mb-2" style=${{background:'linear-gradient(145deg,#e9cf86,#a8803a 50%,#7a5a1c)',boxShadow:'0 2px 5px rgba(0,0,0,.4)'}}>
+   <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0 text-[#3a2a14]" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><circle cx="10" cy="10" r="6"/><path d="M15 15l6 6"/></svg>
+   <input autoFocus value=${q} onChange=${e=>setQ(e.target.value)} placeholder="Search every page, folder, tag, citation and sticky note" aria-label="Search the desk" className="typed flex-1 min-w-0 bg-[#fbf3dc] rounded-full px-3 py-1 text-sm text-stone-900 outline-none"/></div>
+  <div className="max-h-[50vh] overflow-y-auto text-sm">
+   ${!R&&html`<p className="text-stone-500 text-xs">Type to look across everything on the desk.</p>`}
+   ${none&&html`<p className="text-stone-600">Nothing found for “${q}”.</p>`}
+   ${R&&R.fs.length>0&&html`<div className="mb-2"><div className="text-xs text-stone-500">Folders</div>${R.fs.map(f=>html`<button key=${f.id} className=${row} onClick=${()=>onFolder(f)}>${f.name}</button>`)}</div>`}
+   ${R&&R.ts.length>0&&html`<div className="mb-2"><div className="text-xs text-stone-500">Tags</div>${R.ts.map(x=>html`<button key=${x} className=${row+' hand text-xl leading-none'} onClick=${()=>onTag(x)}>${x}</button>`)}</div>`}
+   ${R&&R.pages.length>0&&html`<div className="mb-2"><div className="text-xs text-stone-500">Pages</div>${R.pages.map(({d,w,p})=>html`<button key=${d.id} className=${row} onClick=${()=>onPage(d)}><div className="font-semibold truncate">${d.title||'Untitled'} <span className="font-normal text-xs text-stone-500">in ${fn(d.folder)}, matched ${w}</span></div><div className="text-xs"><${Snip} p=${p}/></div></button>`)}</div>`}
+   ${R&&R.note&&html`<div><div className="text-xs text-stone-500">Sticky note</div><button className=${row} onClick=${onSticky}><div className="text-xs"><${Snip} p=${R.note}/></div></button></div>`}
+  </div><${Row}><button className="btn" onClick=${onClose}>Close</button><//><//>`;
+}
+
+/* ---------- adding machine ---------- */
+function Calc({doc,pos,setPos,onClose}){
+ const [cur,setCur]=useState('0'),[acc,setAcc]=useState(null),[op,setOp]=useState(null),[fresh,setFresh]=useState(true),[tape,setTape]=useState([]),[wpp,setWpp]=useState(300);
+ const tp=useRef(null);useEffect(()=>{if(tp.current)tp.current.scrollTop=1e6},[tape]);
+ const fmt=n=>isFinite(n)?String(+n.toPrecision(12)):'Error',num=()=>parseFloat(cur)||0;
+ const ap=(a,o,b)=>o==='+'?a+b:o==='−'?a-b:o==='×'?a*b:o==='÷'?(b===0?NaN:a/b):b;
+ const log=(...l)=>setTape(t=>[...t,...l].slice(-40));
+ const digit=d=>{if(fresh){setCur(d==='.'?'0.':d);setFresh(false)}else if(!(d==='.'&&cur.includes('.')))setCur(cur==='0'&&d!=='.'?d:cur+d)};
+ const oper=o=>{const b=num();let a=b;if(acc!==null&&op&&!fresh){a=ap(acc,op,b);log(fmt(acc)+' '+op+' '+fmt(b)+' = '+fmt(a))}setAcc(a);setOp(o);setCur(fmt(a));setFresh(true)};
+ const eq=()=>{if(op===null)return;const b=num(),r=ap(acc,op,b);log(fmt(acc)+' '+op+' '+fmt(b)+' = '+fmt(r));setCur(fmt(r));setAcc(null);setOp(null);setFresh(true)};
+ const press=k=>{if(/^[0-9.]$/.test(k))digit(k);else if('+−×÷'.includes(k))oper(k);else if(k==='=')eq();
+  else if(k==='C'){setCur('0');setAcc(null);setOp(null);setFresh(true)}
+  else if(k==='⌫'){if(!fresh)setCur(cur.length>1?cur.slice(0,-1):'0')}
+  else if(k==='%'){const r=num()/100;setCur(fmt(r));setFresh(true)}};
+ const stats=()=>{const b=(doc&&doc.body)||'',w=b.trim()?b.trim().split(/\s+/).length:0;log('— page statistics —','words: '+w,'characters: '+b.length,'pages @'+wpp+': '+(w/wpp).toFixed(2));setCur(fmt(w/wpp));setFresh(true)};
+ const sigma=()=>{const m=((doc&&doc.body)||'').match(/-?\d+(?:,\d{3})*(?:\.\d+)?/g)||[],tot=m.reduce((a,x)=>a+parseFloat(x.replace(/,/g,'')),0);log('Σ of '+m.length+' numbers = '+fmt(tot));setCur(fmt(tot));setFresh(true)};
+ const drag=e=>{if(e.target.closest('button'))return;const sx=e.clientX-pos.x,sy=e.clientY-pos.y,mv=ev=>setPos({x:Math.max(0,Math.min(innerWidth-216,ev.clientX-sx)),y:Math.max(0,Math.min(innerHeight-60,ev.clientY-sy))}),up=()=>{removeEventListener('pointermove',mv);removeEventListener('pointerup',up)};addEventListener('pointermove',mv);addEventListener('pointerup',up)};
+ const keys=[['C'],['⌫'],['%'],['÷'],['7'],['8'],['9'],['×'],['4'],['5'],['6'],['−'],['1'],['2'],['3'],['+'],['0',2],['.'],['=']];
+ return html`<div role="dialog" aria-label="Adding machine" className="fixed z-[35] w-[208px] rounded-2xl p-2" style=${{left:pos.x,top:pos.y,background:'linear-gradient(145deg,#ecd48e,#a8803a 45%,#6e5120)',boxShadow:'0 14px 28px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.5)'}}>
+  <div className="rounded-xl p-2" style=${{background:'linear-gradient(180deg,#3d2b1c,#2a1d12)'}}>
+   <div onPointerDown=${drag} className="flex items-center justify-between cursor-move select-none mb-1.5 touch-none"><span className="hand text-lg text-amber-200 leading-none">Adding machine</span><button onClick=${onClose} aria-label="Put the calculator away" className="text-amber-200/80 hover:text-white text-sm px-1">✕</button></div>
+   <div ref=${tp} className="typed bg-[#f6efdc] text-stone-800 text-[11px] leading-4 h-[68px] overflow-y-auto px-1.5 py-1 rounded-sm shadow-[inset_0_2px_4px_rgba(0,0,0,.3)]">${tape.length?tape.map((l,k)=>html`<div key=${k} className="text-right whitespace-nowrap">${l}</div>`):html`<div className="text-stone-400">tape is empty</div>`}</div>
+   <div className="typed text-right text-2xl tabular-nums text-amber-300 bg-[#1b140d] rounded-sm px-2 py-1 my-1.5 overflow-hidden shadow-[inset_0_2px_6px_#000]" aria-live="polite">${cur}</div>
+   <div className="grid grid-cols-4 gap-1.5">${keys.map(([k,sp])=>html`<button key=${k} onClick=${()=>press(k)} className=${'metal rounded-md h-8 typed text-sm text-stone-900 '+(sp?'col-span-2 ':'')+('+−×÷='.includes(k)?'font-bold':'')}>${k}</button>`)}</div>
+   <div className="flex items-center gap-1.5 mt-2"><button onClick=${stats} className="btn text-xs flex-1" title="Words, characters and pages for the open page">Page stats</button><button onClick=${sigma} className="btn text-xs flex-1" title="Add up every number in the open page">Σ page</button></div>
+   <label className="typed text-[10px] text-amber-200/80 flex items-center gap-1 mt-1.5">words per page<input type="number" min="50" max="1000" value=${wpp} onChange=${e=>setWpp(Math.max(50,+e.target.value||300))} className="w-14 bg-[#f6efdc] text-stone-800 rounded-sm text-center"/></label>
+  </div></div>`;
+}
+
+/* ---------- highlighter + magnifier ---------- */
+const HLC={yellow:'#fff3a3',green:'#c4f0cf',pink:'#ffd1e0'};
+function Mark({doc,color,lens,onChange}){
+ const box=useRef(null),[pt,setPt]=useState(null),body=doc.body||'',txt='whitespace-pre-wrap break-words text-[17px] leading-8 text-stone-800';
+ const hls=useMemo(()=>(doc.hl||[]).map(h=>{let st=h.s;if(body.slice(st,st+h.t.length)!==h.t){st=body.indexOf(h.t);if(st<0)return null}return {...h,s:st}}).filter(Boolean),[doc.hl,body]);
+ const segs=useMemo(()=>{const id=new Array(body.length).fill(null);hls.forEach(h=>{for(let k=h.s;k<h.s+h.t.length;k++)id[k]=h});const out=[];let st=0;for(let k=1;k<=body.length;k++){if(k===body.length||id[k]!==id[st]){out.push({s:st,e:k,h:id[st]});st=k}}return out},[hls,body]);
+ const content=segs.map(g=>html`<span key=${g.s} data-s=${g.s} data-id=${g.h?g.h.id:''} style=${g.h?{background:HLC[g.h.c],borderRadius:'2px'}:null}>${body.slice(g.s,g.e)}</span>`);
+ const off=(n,o)=>{if(n.nodeType===3){const p=n.parentElement&&n.parentElement.closest('[data-s]');return p?+p.dataset.s+o:null}
+  if(n.dataset&&n.dataset.s!==undefined)return +n.dataset.s+(o>0?n.textContent.length:0);const c=n.childNodes[o];return c&&c.dataset&&c.dataset.s!==undefined?+c.dataset.s:body.length};
+ const up=()=>{if(color==='erase')return;const sl=getSelection();if(!sl||sl.isCollapsed||!box.current||!box.current.contains(sl.anchorNode))return;
+  const r=sl.getRangeAt(0),a=off(r.startContainer,r.startOffset),b=off(r.endContainer,r.endOffset);if(a==null||b==null||b<=a)return;
+  const t=body.slice(a,b);if(!t.trim())return;onChange([...(doc.hl||[]),{id:uid(),s:a,t,c:color}]);sl.removeAllRanges()};
+ const click=e=>{if(color!=='erase')return;const sp=e.target.closest&&e.target.closest('[data-id]');if(sp&&sp.dataset.id)onChange((doc.hl||[]).filter(h=>h.id!==sp.dataset.id))};
+ const mv=e=>{if(!lens||!box.current)return;const r=box.current.getBoundingClientRect();setPt({x:e.clientX-r.left,y:e.clientY-r.top})};
+ const Z=1.7,R=70;
+ return html`<div className="flex-1 min-h-[240px] md:min-h-0 overflow-y-auto pl-3 pr-1">
+  <div ref=${box} className="relative" onMouseUp=${up} onClick=${click} onMouseMove=${mv} onMouseLeave=${()=>setPt(null)} style=${{cursor:color==='erase'?'pointer':'text'}}>
+   ${body.trim()?html`<div className=${txt}>${content}</div>`:html`<p className="text-stone-500 italic">Nothing to highlight yet. Write or drop a file onto the desk first.</p>`}
+   ${lens&&pt&&box.current&&html`<div className="absolute pointer-events-none z-20" style=${{left:pt.x-R,top:pt.y-R,width:2*R,height:2*R}}>
+    <div className="absolute inset-0 rounded-full overflow-hidden" style=${{background:'#fffdf3',border:'7px solid #b8902f',boxShadow:'0 8px 18px rgba(0,0,0,.45), inset 0 0 14px rgba(0,0,0,.28), 0 0 0 2px #6e5120'}}>
+     <div className=${txt} style=${{position:'absolute',left:0,top:0,width:box.current.offsetWidth,transformOrigin:'0 0',transform:'translate('+(R-7-pt.x*Z)+'px,'+(R-7-pt.y*Z)+'px) scale('+Z+')'}}>${content}</div>
+     <div className="absolute inset-0 rounded-full" style=${{background:'linear-gradient(135deg,rgba(255,255,255,.28),transparent 45%)'}}></div></div>
+    <div style=${{position:'absolute',right:-18,bottom:-34,width:13,height:50,borderRadius:7,transform:'rotate(-45deg)',background:'linear-gradient(90deg,#5a3a1d,#9a6633,#5a3a1d)',boxShadow:'0 3px 6px rgba(0,0,0,.4)'}}></div></div>`}
+  </div></div>`;
+}
+
+/* ---------- citation pad ---------- */
+function CitePad({doc,onChange,onInsert}){
+ const [open,setOpen]=useState(false),[v,setV]=useState(''),list=doc.cites||[];
+ const add=()=>{const t=v.trim();if(!t)return;onChange([...list,{id:uid(),t}]);setV('')};
+ const copy=async()=>{try{await navigator.clipboard.writeText(list.map((c,k)=>'['+(k+1)+'] '+c.t).join('\n'))}catch(e){}};
+ return html`<div className="mt-1 border-t-2 border-dashed border-stone-400/70 pl-3">
+  <button onClick=${()=>setOpen(!open)} aria-expanded=${open} className="typed text-xs text-stone-700 w-full text-left flex items-center gap-2 py-1"><span>${open?'▾':'▸'}</span>Citations and sources<span className="text-stone-500">(${list.length})</span></button>
+  ${open&&html`<div className="drop pb-1">
+   <ol className="max-h-28 overflow-y-auto text-[13px] space-y-1">${list.map((c,k)=>html`<li key=${c.id} className="flex items-start gap-1.5">
+    <button onClick=${()=>onInsert('['+(k+1)+']')} title="Insert this marker at the cursor" className="typed text-xs bg-stone-800/10 hover:bg-stone-800/25 rounded px-1.5 shrink-0">[${k+1}]</button>
+    <input value=${c.t} onChange=${e=>onChange(list.map(x=>x.id===c.id?{...x,t:e.target.value}:x))} aria-label=${'Citation '+(k+1)} className="flex-1 min-w-0 bg-transparent outline-none border-b border-transparent focus:border-stone-400 italic"/>
+    <button aria-label=${'Remove citation '+(k+1)} onClick=${()=>onChange(list.filter(x=>x.id!==c.id))} className="text-xs hover:text-red-700">✕</button></li>`)}</ol>
+   <div className="flex gap-2 mt-1"><input value=${v} onChange=${e=>setV(e.target.value)} onKeyDown=${e=>e.key==='Enter'&&add()} placeholder="Case, statute or source, then Enter" className="typed flex-1 min-w-0 text-xs bg-white/60 px-2 py-1 rounded-sm shadow-[inset_0_1px_3px_rgba(0,0,0,.3)] outline-none"/><button className="btn text-xs" onClick=${add}>Add</button>${list.length>0&&html`<button className="btn text-xs" onClick=${copy}>Copy list</button>`}</div></div>`}</div>`;
+}
+
+/* ---------- modals ---------- */
+function Modal({title,onClose,children}){
+ useEffect(()=>{const k=e=>e.key==='Escape'&&onClose();addEventListener('keydown',k);return()=>removeEventListener('keydown',k)},[]);
+ return html`<div className="fixed inset-0 z-50 flex items-start justify-center bg-black/55 pt-[10vh] px-4 overflow-y-auto" onMouseDown=${e=>e.target===e.currentTarget&&onClose()}>
+  <div className="slip typed w-full max-w-md rounded-sm p-6 relative text-stone-800" role="dialog" aria-label=${title}>
+   <div className="absolute -top-3 left-6 w-14 h-5 bg-white/50 -rotate-3 shadow"></div>
+   <h2 className="text-xl mb-3 border-b-2 border-dashed border-stone-400 pb-1">${title}</h2>${children}</div></div>`;
+}
+const Row=({children})=>html`<div className="flex justify-end gap-2 mt-4">${children}</div>`;
+function Ask({title,label,init,ok,onOk,onClose}){
+ const [v,setV]=useState(init||'');
+ const go=()=>{const t=v.trim();if(t){onOk(t);onClose()}};
+ return html`<${Modal} title=${title} onClose=${onClose}><label className="text-sm text-stone-600">${label}</label>
+  <input autoFocus value=${v} onChange=${e=>setV(e.target.value)} onKeyDown=${e=>e.key==='Enter'&&go()} maxLength="40" className="typed w-full mt-1 bg-transparent border-b-2 border-stone-700 outline-none text-lg py-1"/>
+  <${Row}><button className="btn" onClick=${onClose}>Cancel</button><button className="btn font-semibold" onClick=${go}>${ok||'Save'}</button><//><//>`;
+}
+function Sure({title,msg,ok,onOk,onClose}){
+ return html`<${Modal} title=${title} onClose=${onClose}><p className="text-sm">${msg}</p><${Row}><button className="btn" onClick=${onClose}>Keep it</button><button className="btn font-semibold" style=${{color:'#8a1c10'}} onClick=${()=>{onOk();onClose()}}>${ok}</button><//><//>`;
+}
+function FolderDel({folder,others,count,onOk,onClose}){
+ const [mode,setMode]=useState(count&&others.length?'move':'delete'),[to,setTo]=useState(others[0]?others[0].id:'');
+ return html`<${Modal} title=${'Remove “'+folder.name+'”?'} onClose=${onClose}>
+  ${count?html`<div className="text-sm space-y-2"><p>This folder holds ${count} ${count===1?'page':'pages'}. What should happen to them?</p>
+   <label className="flex gap-2 items-center"><input type="radio" checked=${mode==='move'} onChange=${()=>setMode('move')}/>Move to
+    <select value=${to} onChange=${e=>{setTo(e.target.value);setMode('move')}} className="bg-transparent border-b border-stone-600">${others.map(f=>html`<option key=${f.id} value=${f.id}>${f.name}</option>`)}</select></label>
+   <label className="flex gap-2 items-center"><input type="radio" checked=${mode==='delete'} onChange=${()=>setMode('delete')}/>Send them to the bin</label></div>`:html`<p className="text-sm">This folder is empty.</p>`}
+  <${Row}><button className="btn" onClick=${onClose}>Cancel</button><button className="btn font-semibold" style=${{color:'#8a1c10'}} onClick=${()=>{onOk(mode==='move'?to:null);onClose()}}>Remove folder</button><//><//>`;
+}
+function Drawer({dump,onImport,onReset,install,onClose}){
+ const [msg,setMsg]=useState(''),[txt,setTxt]=useState('');
+ const save=async()=>{
+  const json=JSON.stringify(dump(),null,2),fn='document-desk-'+new Date().toISOString().slice(0,10)+'.json',blob=new Blob([json],{type:'application/json'});
+  try{const dl=await window.claude.use('downloads');if(dl){await dl.save({filename:fn,data:blob});setMsg('Backup ready.');return}}catch(e){if(e&&e.code==='declined'){setMsg('Save cancelled.');return}}
+  try{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fn;a.click();setMsg('Backup downloaded.')}catch(e){setMsg('Download blocked here. Use “Copy” instead.')}
+ };
+ const copy=async()=>{try{await navigator.clipboard.writeText(JSON.stringify(dump()));setMsg('Copied. Paste it into a text file to keep it.')}catch(e){setTxt(JSON.stringify(dump()));setMsg('Select the text below and copy it.')}};
+ const file=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>setMsg(onImport(r.result));r.readAsText(f)};
+ return html`<${Modal} title="Desk drawer" onClose=${onClose}>
+  <p className="text-sm mb-2">Back up everything: folders, pages, tags, sticky note and timer.</p>
+  <div className="flex gap-2 flex-wrap"><button className="btn" onClick=${save}>Save backup file</button><button className="btn" onClick=${copy}>Copy as text</button>${install&&html`<button className="btn" onClick=${install}>Install as app</button>`}</div>
+  <p className="text-sm mt-4 mb-1">Restore from a backup (replaces what’s on the desk):</p>
+  <input type="file" accept=".json,application/json" onChange=${file} className="text-xs w-full"/>
+  <textarea value=${txt} onChange=${e=>setTxt(e.target.value)} placeholder="…or paste backup text here" className="typed w-full h-20 mt-2 text-xs bg-white/50 border border-stone-400 p-1"/>
+  ${txt&&html`<button className="btn mt-1" onClick=${()=>setMsg(onImport(txt))}>Restore from text</button>`}
+  <div className="mt-4 pt-2 border-t border-dashed border-stone-400 flex items-center justify-between"><span className="text-sm min-h-[1.25rem]">${msg}</span><button className="text-xs underline text-red-800" onClick=${onReset}>Reset desk</button></div><//>`;
+}
+
+/* ---------- main ---------- */
+function App(){
+ const [folders,setFolders]=useState(()=>ls.get('desk.folders',[]));
+ const [tags,setTags]=useState(()=>ls.get('desk.tags',[]));
+ const [docs,setDocs]=useState(loadDocs);
+ const [folder,setFolder]=useState(()=>ls.get('desk.folder','f1')),[q,setQ]=useState('All'),[sel,setSel]=useState(null),[modal,setModal]=useState(null),[rev,setRev]=useState(0);
+ useEffect(()=>ls.set('desk.docs',docs),[docs]);
+ useEffect(()=>ls.set('desk.folders',folders),[folders]);
+ useEffect(()=>ls.set('desk.tags',tags),[tags]);
+ useEffect(()=>ls.set('desk.folder',folder),[folder]);
+ const [sv,setSv]=useState({ok:true,t:''}),[ip,setIp]=useState(null);
+ useEffect(()=>{const h=e=>{const ok=e.detail,t=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});setSv(x=>x.ok===ok&&x.t===t?x:{ok,t})},b=e=>{e.preventDefault();setIp(e)};
+  addEventListener('desk-save',h);addEventListener('beforeinstallprompt',b);return()=>{removeEventListener('desk-save',h);removeEventListener('beforeinstallprompt',b)}},[]);
+ const [lamp,setLamp]=useState(()=>ls.get('desk.lamp',false)),[trash,setTrash]=useState(()=>ls.get('desk.trash',[]));
+ const [view,setView]=useState('write'),[stampType,setStampType]=useState(0),[press,setPress]=useState(false),[crumple,setCrumple]=useState(null),[ball,setBall]=useState(null),[wig,setWig]=useState(false),[drag,setDrag]=useState(null),[toast,setToast]=useState('');
+ const paperRef=useRef(null),trashRef=useRef(null),taRef=useRef(null),tt=useRef(null);
+ useEffect(()=>{ls.set('desk.lamp',lamp)},[lamp]);
+ useEffect(()=>{ls.set('desk.trash',trash)},[trash]);
+ const [calc,setCalc]=useState(false),[calcPos,setCalcPos]=useState(()=>ls.get('desk.calcPos',null)||{x:Math.max(16,innerWidth-480),y:150});
+ const [hlColor,setHlColor]=useState('yellow'),[lens,setLens]=useState(true),[ink,setInk]=useState(0),[armed,setArmed]=useState(false),[ghost,setGhost]=useState(null),[selW,setSelW]=useState(0);
+ useEffect(()=>{ls.set('desk.calcPos',calcPos)},[calcPos]);
+ useEffect(()=>{const k=e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();setModal({k:'search'})}if(e.key==='Escape')setArmed(false)};addEventListener('keydown',k);return()=>removeEventListener('keydown',k)},[]);
+ useEffect(()=>{setArmed(false)},[sel,folder]);
+ const fid=folders.some(f=>f.id===folder)?folder:(folders[0]||{}).id;
+ const fname=(folders.find(f=>f.id===fid)||{}).name;
+ const match=d=>q==='All'||(q==='Starred'?d.star:d.tag===q);
+ const list=docs.filter(d=>d.folder===fid&&match(d));
+ const cur=list.find(d=>d.id===sel)||list[0];
+ const words=cur&&cur.body.trim()?cur.body.trim().split(/\s+/).length:0,chars=cur?cur.body.length:0,mins=words?Math.max(1,Math.round(words/220)):0;
+ const upd=(id,p)=>setDocs(ds=>ds.map(d=>d.id===id?{...d,...p}:d));
+ const add=()=>{if(fid)setModal({k:'tpl'})};
+ const makeDoc=k=>{const t=TPLS.find(x=>x.k===k),id=uid(),d=new Date().toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'});setDocs(ds=>[...ds,{id,folder:fid,tag:tags.includes(q)?q:'',star:false,title:t.title,body:t.body(d),stamps:[],hl:[],cites:[]}]);setSel(id);setView('write');setModal(null)};
+ const insertAt=txt=>{if(!cur)return;const ta=taRef.current;if(view!=='write'||!ta){upd(cur.id,{body:cur.body+(cur.body&&!/\s$/.test(cur.body)?' ':'')+txt});return}const a=ta.selectionStart,b=ta.selectionEnd,v=cur.body;upd(cur.id,{body:v.slice(0,a)+txt+v.slice(b)});requestAnimationFrame(()=>{ta.focus();ta.setSelectionRange(a+txt.length,a+txt.length)})};
+ const count=f=>docs.filter(d=>d.folder===f&&match(d)).length;
+ const total=f=>docs.filter(d=>d.folder===f).length;
+ const ask=(o)=>setModal({k:'ask',...o});
+ const dump=()=>({app:'document-desk',version:3,folders,tags,docs,trash,sticky:ls.get('desk.sticky',''),timer:ls.get('desk.timer',null)});
+ const importer=txt=>{try{const d=JSON.parse(txt);if(!Array.isArray(d.docs)||!Array.isArray(d.folders))throw 0;
+  const fs=d.folders.filter(f=>f&&f.id&&f.name).map(f=>({id:String(f.id),name:String(f.name)}));if(!fs.length)throw 0;
+  setFolders(fs);setDocs(d.docs.filter(x=>x&&x.id&&fs.some(f=>f.id===x.folder)).map(x=>({id:x.id,folder:x.folder,tag:x.tag||'',star:!!x.star,title:String(x.title||''),body:String(x.body||''),stamps:Array.isArray(x.stamps)?x.stamps:[],hl:Array.isArray(x.hl)?x.hl:[],cites:Array.isArray(x.cites)?x.cites:[]})));
+  setTags(Array.isArray(d.tags)?d.tags.map(String):[]);if(typeof d.sticky==='string')ls.set('desk.sticky',d.sticky);if(d.timer&&d.timer.mode)ls.set('desk.timer',d.timer);
+  setTrash(Array.isArray(d.trash)?d.trash.filter(x=>x&&x.id):[]);setFolder(fs[0].id);setQ('All');setSel(null);setRev(r=>r+1);return 'Desk restored.'}catch(e){return 'That file isn’t a Document Desk backup.'}};
+ const reset=()=>setModal({k:'sure',title:'Reset the desk?',msg:'Everything on the desk is cleared: pages, folders, tags, notes and the bin. Export a backup first if unsure.',ok:'Reset desk',onOk:()=>{setFolders([]);setTags([]);setDocs(SEED);setTrash([]);ls.set('desk.sticky','');ls.set('desk.timer',null);setFolder('');setQ('All');setRev(r=>r+1)}});
+ const renameTag=t=>ask({title:'Rename tag',label:'Tag name',init:t,onOk:n=>{if(n!==t&&!tags.includes(n)&&n!=='All'&&n!=='Starred'){setTags(tags.map(x=>x===t?n:x));setDocs(docs.map(d=>d.tag===t?{...d,tag:n}:d));setQ(n)}}});
+ const delTag=t=>setModal({k:'sure',title:'Remove tag “'+t+'”?',msg:'Pages with this tag stay put and become untagged.',ok:'Remove tag',onOk:()=>{setTags(tags.filter(x=>x!==t));setDocs(docs.map(d=>d.tag===t?{...d,tag:''}:d));setQ('All')}});
+ const delFolder=f=>{const others=folders.filter(x=>x.id!==f.id);setModal({k:'fdel',folder:f,others,count:total(f.id),onOk:to=>{if(!to)setTrash(tr=>[...docs.filter(d=>d.folder===f.id).map(d=>({...d,folderName:f.name,removedAt:Date.now()})),...tr].slice(0,200));setDocs(to?docs.map(d=>d.folder===f.id?{...d,folder:to}:d):docs.filter(d=>d.folder!==f.id));setFolders(others);if(fid===f.id)setFolder((others[0]||{}).id)}})};
+ const say=m=>{setToast(m);clearTimeout(tt.current);tt.current=setTimeout(()=>setToast(''),4500)};
+ const discard=()=>{if(cur&&!crumple)setCrumple(cur.id)};
+ const crumpled=()=>{const p=paperRef.current.getBoundingClientRect(),t=trashRef.current.getBoundingClientRect(),x=p.left+p.width/2,y=p.top+p.height/2;
+  setBall({x,y,dx:t.left+t.width/2-x,dy:t.top+t.height/3-y});
+  setTrash(tr=>[{...cur,folderName:fname,removedAt:Date.now()},...tr].slice(0,200));setDocs(ds=>ds.filter(d=>d.id!==cur.id));setSel(null);setCrumple(null)};
+ const landed=()=>{setBall(null);setWig(true);setTimeout(()=>setWig(false),600)};
+ const restore=d=>{const {folderName,removedAt,...r}=d,f=folders.some(x=>x.id===r.folder)?r.folder:fid;setDocs(ds=>[...ds,{...r,folder:f}]);setTrash(t=>t.filter(x=>x.id!==d.id));setFolder(f);setQ('All');setSel(r.id);setModal(null)};
+ const inkUp=()=>{setInk(1);setArmed(true);setPress(true);setTimeout(()=>setPress(false),220)};
+ const place=e=>{if(!cur||!paperRef.current)return;const r=paperRef.current.getBoundingClientRect(),sd=STAMPS[stampType];
+  upd(cur.id,{stamps:[...(cur.stamps||[]),{id:uid(),t:sd.t,c:sd.c,x:Math.round((e.clientX-r.left)/r.width*1000)/10,y:Math.round((e.clientY-r.top)/r.height*1000)/10,r:Math.round((Math.random()*20-10)*10)/10,o:Math.round((.2+.7*ink)*100)/100,f:ink<.6}]});
+  setInk(v=>v*.35);setArmed(false);setGhost(null);setPress(true);setTimeout(()=>setPress(false),220)};
+ const fmt=kind=>{const ta=taRef.current;if(!ta||!cur)return;const v=cur.body,a=ta.selectionStart,b=ta.selectionEnd;let nv,s1,s2;
+  if(kind==='b'||kind==='i'){const m=kind==='b'?'**':'*',sl=v.slice(a,b)||(kind==='b'?'bold text':'italic text');nv=v.slice(0,a)+m+sl+m+v.slice(b);s1=a+m.length;s2=s1+sl.length}
+  else{const st=v.lastIndexOf('\n',a-1)+1;let en=v.indexOf('\n',b);if(en<0)en=v.length;
+   const out=v.slice(st,en).split('\n').map(l=>kind==='h'?(l.startsWith('### ')?l.slice(4):/^#{1,2} /.test(l)?'#'+l:'# '+l):(l.startsWith('- ')?l.slice(2):'- '+l)).join('\n');nv=v.slice(0,st)+out+v.slice(en);s1=st;s2=st+out.length}
+  upd(cur.id,{body:nv});requestAnimationFrame(()=>{ta.focus();ta.setSelectionRange(s1,s2)})};
+ const hasFiles=e=>[...((e.dataTransfer&&e.dataTransfer.types)||[])].includes('Files');
+ const targetOf=e=>{const f=e.target.closest&&e.target.closest('[data-folder]');return f?f.dataset.folder:fid};
+ const dragOver=e=>{if(!hasFiles(e))return;e.preventDefault();setDrag(targetOf(e)||'none')};
+ const dragLeave=e=>{if(!e.relatedTarget||!e.currentTarget.contains(e.relatedTarget))setDrag(null)};
+ const drop=async e=>{if(!hasFiles(e))return;e.preventDefault();const target=targetOf(e);setDrag(null);if(!target){say('Add a folder first, then drop files in.');return}
+  const files=[...e.dataTransfer.files];let n=0,last=null;
+  for(const file of files){const ext=(file.name.split('.').pop()||'').toLowerCase();let body=null;
+   try{if(['txt','md','markdown'].includes(ext))body=await file.text();else if(ext==='pdf'||file.type==='application/pdf'){say('Reading '+file.name+'…');body=await pdfText(file);if(!body)throw 0}else{say('Skipped '+file.name+': only .txt, .md and .pdf can be filed.');continue}}
+   catch(err){say(ext==='pdf'?'No readable text in '+file.name+' (it may be scanned, or the PDF reader couldn’t load).':'Couldn’t read '+file.name+'.');continue}
+   const id=uid();last=id;n++;setDocs(ds=>[...ds,{id,folder:target,tag:'',star:false,title:file.name.replace(/\.[^.]+$/,''),body,stamps:[]}])}
+  if(n){setFolder(target);setQ('All');setSel(last);setView('write');say(n+(n===1?' page':' pages')+' filed in “'+((folders.find(x=>x.id===target)||{}).name||'folder')+'”.')}};
+ return html`<div className=${'wood relative flex flex-col overflow-hidden '+(lamp?'night':'')} style=${{height:'100dvh'}} onDragOver=${dragOver} onDragLeave=${dragLeave} onDrop=${drop}>
+  <svg width="0" height="0" className="absolute" aria-hidden="true"><defs><filter id="ink" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="3" result="n"/><feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  2.2 0 0 0 -.45" result="m"/><feComposite in="SourceGraphic" in2="m" operator="in"/></filter><filter id="inkfade" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency=".7" numOctaves="2" seed="5" result="n"/><feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  2 0 0 0 -.62" result="m"/><feComposite in="SourceGraphic" in2="m" operator="in"/></filter></defs></svg>
+  <div aria-hidden="true" className="fixed inset-0 pointer-events-none z-20" style=${{opacity:lamp?1:0,transition:'opacity .8s',background:'radial-gradient(ellipse 80% 75% at 50% 52%, rgba(10,7,26,.26) 0%, rgba(6,4,16,.55) 55%, rgba(3,2,10,.8) 100%)'}}></div>
+  <div aria-hidden="true" className="fixed inset-0 pointer-events-none z-20" style=${{opacity:lamp?1:0,transition:'opacity .8s',mixBlendMode:'screen',background:'radial-gradient(ellipse 46% 50% at 50% 52%, rgba(255,176,80,.28), rgba(255,150,50,.10) 55%, transparent 75%)'}}></div>
+  <div aria-hidden="true" className="fixed inset-0 pointer-events-none z-[26]" style=${{opacity:lamp?1:0,transition:'opacity .8s',mixBlendMode:'soft-light',background:'radial-gradient(ellipse 46% 50% at 50% 52%, rgba(255,176,80,.6), rgba(255,150,50,.2) 55%, transparent 75%)'}}></div>
+  <div className="absolute top-1 right-[6.4rem] md:right-[8.4rem] z-30"><${Lamp} on=${lamp} toggle=${()=>setLamp(!lamp)}/></div>
+  ${drag&&html`<div className="fixed inset-0 z-40 pointer-events-none flex items-center justify-center bg-black/40"><div className="slip typed rounded-sm px-8 py-6 text-stone-800 text-lg border-4 border-dashed border-stone-500 text-center">Drop to file in “${(folders.find(x=>x.id===drag)||{name:'this folder'}).name}”<div className="text-xs text-stone-500 mt-1">.txt, .md and .pdf become new pages</div></div></div>`}
+  ${toast&&html`<div role="status" className="slip typed fixed top-3 left-1/2 -translate-x-1/2 z-[70] rounded-sm px-4 py-2 text-sm text-stone-800 max-w-[90vw]">${toast}</div>`}
+  ${ball&&html`<div className="ball fixed z-[60] w-10 h-10 pointer-events-none" style=${{left:ball.x-20,top:ball.y-20,'--dx':ball.dx+'px','--dy':ball.dy+'px'}} onAnimationEnd=${landed}></div>`}
+  <header className="shelf flex items-center gap-3 px-3 md:px-6 py-2 relative z-10">
+   <nav className="flex-1 min-w-0 pr-16 md:pr-20" aria-label="Quick access">
+    <div className="flex items-center gap-2 mb-1"><span className="hand text-2xl text-amber-100 leading-none drop-shadow">Quick Access</span>
+     <button onClick=${()=>setModal({k:'search'})} title="Search the whole desk (Ctrl+K)" aria-label="Search the whole desk" className="metal rounded w-7 h-7 flex items-center justify-center text-stone-800"><svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><circle cx="10" cy="10" r="6"/><path d="M15 15l6 6"/></svg></button>
+     <button onClick=${()=>setCalc(c=>!c)} aria-pressed=${calc} title="Adding machine" aria-label="Adding machine" className=${'metal rounded w-7 h-7 flex items-center justify-center text-stone-800 '+(calc?'ring-2 ring-amber-300':'')}><svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="5" y="3" width="14" height="18" rx="2"/><rect x="8" y="6" width="8" height="3"/><path d="M8 13h2M14 13h2M8 17h2M14 17h2"/></svg></button></div>
+    <div className="flex gap-2 overflow-x-auto pb-1 items-end">${['All','Starred',...tags].map(k=>{const custom=tags.includes(k),on=q===k;return html`<div key=${k} className=${'shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-t border border-[#3d2412]/60 shadow-[0_3px_5px_rgba(0,0,0,.4)] transition-transform '+(on?'bg-[#f6efdc] text-stone-900 -translate-y-0.5 font-semibold':'bg-[#d9bd8a] text-stone-800 hover:bg-[#e6cfa0]')}>
+      <button onClick=${()=>setQ(k)} className=${custom?'tagtab':'text-sm'}>${k}</button>
+      ${custom&&on&&html`<button onClick=${()=>renameTag(k)} aria-label=${'Rename '+k} className="text-xs opacity-70 hover:opacity-100">✎</button><button onClick=${()=>delTag(k)} aria-label=${'Remove '+k} className="text-xs opacity-70 hover:text-red-700">✕</button>`}
+     </div>`})}
+     <button onClick=${()=>ask({title:'New tag',label:'What should it be called?',ok:'Add tag',onOk:n=>{if(!tags.includes(n)&&n!=='All'&&n!=='Starred')setTags([...tags,n])}})} className="tagtab shrink-0 px-3 py-1.5 rounded-t border border-dashed border-amber-100/60 text-amber-100 hover:bg-white/10">+ tag</button>
+    </div>
+   </nav>
+   <${Clock}/>
+  </header>
+
+  <main className="flex-1 min-h-0 overflow-y-auto md:overflow-hidden grid gap-5 p-4 md:p-6 md:grid-cols-[170px_minmax(0,1fr)_220px] md:grid-rows-[minmax(0,1fr)] grid-cols-1">
+   <aside aria-label="Folders" className="md:overflow-y-auto md:min-h-0 md:pr-3">
+    <div className="flex md:flex-col gap-3 overflow-x-auto md:overflow-visible pb-2 pt-2">
+     ${folders.map(f=>html`<div key=${f.id} data-folder=${f.id} className=${(drag===f.id?'ring-4 ring-amber-300 ':'')+'manila relative shrink-0 w-36 md:w-full h-24 rounded-b-md rounded-tr-md transition-transform '+(fid===f.id?'-translate-y-1 md:translate-x-2 ring-2 ring-amber-900/60':'hover:-translate-y-0.5')}>
+      <span className="absolute -top-2.5 left-0 h-3.5 w-14 rounded-t manila"></span>
+      <button onClick=${()=>{setFolder(f.id);setSel(null)}} className="absolute inset-0 w-full h-full text-left px-3 pt-8 rounded-b-md">
+       <span className="block font-semibold text-stone-800 text-[15px] truncate pr-10">${f.name}</span>
+       <span className="block text-xs text-stone-700">${count(f.id)} ${count(f.id)===1?'page':'pages'}</span></button>
+      <div className="absolute right-1.5 top-1.5 flex gap-1 z-[1]">
+       <button aria-label=${'Rename '+f.name} onClick=${()=>ask({title:'Rename folder',label:'Folder name',init:f.name,onOk:n=>setFolders(folders.map(x=>x.id===f.id?{...x,name:n}:x))})} className="text-xs w-5 h-5 rounded bg-black/10 hover:bg-black/20">✎</button>
+       <button aria-label=${'Remove '+f.name} onClick=${()=>delFolder(f)} className="text-xs w-5 h-5 rounded bg-black/10 hover:bg-red-700/40 disabled:opacity-30">✕</button></div>
+     </div>`)}
+     <button onClick=${()=>ask({title:'New folder',label:'Label the tab:',ok:'Add folder',onOk:n=>{const id=uid();setFolders([...folders,{id,name:n}]);setFolder(id);setSel(null)}})} className="shrink-0 w-36 md:w-full h-14 rounded-md border-2 border-dashed border-amber-100/60 text-amber-100 hover:bg-white/10 hand text-2xl">+ new folder</button>
+    </div>
+    <div className="hand text-3xl text-amber-100 mt-2 drop-shadow">Folders</div>
+   </aside>
+
+   <section className="blotter rounded-md p-4 md:p-7 flex flex-col min-h-[420px] md:min-h-0" aria-label="Workspace">
+    <div className="flex flex-wrap items-end gap-1.5 mb-[-1px] relative z-[1]">
+     ${list.map(d=>html`<button key=${d.id} onClick=${()=>setSel(d.id)} className=${'max-w-[180px] truncate px-3 py-1.5 text-sm rounded-t shadow '+(cur&&cur.id===d.id?'bg-[#fffdf6] text-stone-900':'bg-[#cdb98a] text-stone-700 hover:bg-[#ddc99a]')}>${d.star?'★ ':''}${d.title||'Untitled'}</button>`)}
+     ${fid&&html`<button onClick=${add} className="metal rounded px-2.5 py-1 text-sm mb-0.5 text-stone-800">+ New page</button>`}
+     ${cur&&html`<div className="ml-auto flex items-end gap-2 mb-0.5">
+      <select value=${stampType} onChange=${e=>{const n=+e.target.value;if(STAMPS[n].c!==STAMPS[stampType].c){setInk(0);setArmed(false)}setStampType(n)}} aria-label="Choose a stamp" className="typed text-xs bg-[#efe6cf] text-stone-800 rounded px-1.5 py-1 shadow">${STAMPS.map((x,k)=>html`<option key=${x.t} value=${k}>${x.t}</option>`)}</select>
+      <button onClick=${inkUp} aria-label="Press the stamp on the ink pad" title="Ink pad: press the stamp here before every stamp or it prints faded" className="block">
+       <svg viewBox="0 0 48 26" className="w-12 h-7 drop-shadow-[0_3px_3px_rgba(0,0,0,.5)]"><rect x="1" y="6" width="46" height="18" rx="4" fill="#3b3f3a" stroke="#b9b0a1" strokeWidth="1.5"/><rect x="5" y="9" width="38" height="11" rx="2.5" fill=${STAMPS[stampType].c} opacity=".92"/><rect x="5" y="9" width="38" height="4" rx="2" fill="#fff" opacity=".18"/><rect x="1" y="2" width="46" height="5" rx="2" fill="#b9b0a1"/></svg></button>
+      <div className="flex flex-col items-center gap-0.5">
+       <button onClick=${()=>setArmed(a=>!a)} aria-pressed=${armed} aria-label=${'Pick up the '+STAMPS[stampType].t+' stamp, then click the page'} title="Pick up the stamp, then click the page where it should land" className=${'block rounded '+(armed?'ring-2 ring-amber-300':'')}>
+        <svg viewBox="0 0 36 42" className="w-9 h-10 drop-shadow-[0_3px_3px_rgba(0,0,0,.5)]"><g style=${{transition:'transform .12s',transform:(press||armed)?'translateY(-3px)':'none'}}>
+         <rect x="12" y="1" width="12" height="16" rx="6" fill="#9a6633"/><rect x="15" y="14" width="6" height="10" fill="#7b4f27"/><rect x="5" y="23" width="26" height="9" rx="2" fill="#6b4423"/><rect x="7" y="32" width="22" height="4" fill=${STAMPS[stampType].c} opacity=${.25+.75*ink}/></g></svg></button>
+       <div className="w-9 h-1 rounded bg-black/35 overflow-hidden" title="Ink left on the stamp"><div className="h-full" style=${{width:Math.round(ink*100)+'%',background:STAMPS[stampType].c}}></div></div></div></div>`}
+    </div>
+    ${cur?html`<div ref=${paperRef} style=${crumple===cur.id?{animation:'crumple .6s ease-in forwards'}:null} onAnimationEnd=${e=>{if(crumple===cur.id&&e.target===e.currentTarget)crumpled()}} className="paper flex-1 min-h-0 rounded-sm rounded-tl-none p-5 md:px-12 md:py-8 flex flex-col relative">
+      <div className="absolute left-8 md:left-10 top-0 bottom-0 w-px bg-red-400/40"></div>
+      ${(cur.stamps||[]).map(st=>html`<div key=${st.id} className="stampmark" style=${{left:st.x+'%',top:st.y+'%',color:st.c,'--r':st.r+'deg',opacity:st.o,filter:st.f?'url(#inkfade)':undefined}}>${st.t}</div>`)}
+      ${armed&&html`<div className="absolute inset-0 z-10 cursor-crosshair" onClick=${place} onMouseMove=${e=>{const r=paperRef.current.getBoundingClientRect();setGhost({x:(e.clientX-r.left)/r.width*100,y:(e.clientY-r.top)/r.height*100})}} onContextMenu=${e=>{e.preventDefault();setArmed(false)}}>
+       <div className="absolute top-1 left-1/2 -translate-x-1/2 typed text-[11px] bg-black/60 text-amber-100 rounded px-2 py-0.5 whitespace-nowrap">Click where the stamp should land. Esc cancels.</div>
+       ${ghost&&html`<div className="stampmark" style=${{left:ghost.x+'%',top:ghost.y+'%',color:STAMPS[stampType].c,'--r':'-4deg',opacity:.15+.25*ink,animation:'none',borderStyle:'dashed',filter:'none'}}>${STAMPS[stampType].t}</div>`}</div>`}
+      <div className="flex items-center gap-2 mb-2 pl-3">
+       <input value=${cur.title} onChange=${e=>upd(cur.id,{title:e.target.value})} aria-label="Page title" className="flex-1 bg-transparent outline-none text-2xl font-semibold text-stone-900 min-w-0"/>
+       <button onClick=${()=>upd(cur.id,{star:!cur.star})} aria-label="Star page" className=${'text-xl '+(cur.star?'text-amber-500':'text-stone-400')}>★</button>
+       <button onClick=${discard} className="text-xs text-stone-500 hover:text-red-700 underline">To the bin</button>
+      </div>
+      <div className="flex items-center gap-1.5 pl-3 mb-1 flex-wrap">
+       ${[['b','B','Bold (Ctrl+B)','font-bold'],['i','I','Italic (Ctrl+I)','italic'],['h','H','Heading (press again for smaller)',''],['l','•','Bullet list','']].map(([k,l,t,c])=>html`<button key=${k} title=${t} aria-label=${t} disabled=${view!=='write'} onClick=${()=>fmt(k)} className=${'metal rounded w-7 h-7 text-sm typed text-stone-800 disabled:opacity-40 '+c}>${l}</button>`)}
+       <span className="flex-1"></span>
+       <button aria-pressed=${view==='mark'} onClick=${()=>setView(view==='mark'?'write':'mark')} title="Highlighter and magnifying glass" aria-label="Highlighter and magnifying glass" className=${'rounded-full w-8 h-8 flex items-center justify-center '+(view==='mark'?'ring-2 ring-amber-400':'')} style=${{background:'linear-gradient(145deg,#ecd48e,#a8803a 55%,#6e5120)',boxShadow:'0 2px 4px rgba(0,0,0,.45)'}}><svg viewBox="0 0 24 24" className="w-5 h-5 text-[#3a2a14]" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><circle cx="10" cy="10" r="6"/><path d="M15 15l6 6"/></svg></button>
+       <button aria-pressed=${view==='preview'} onClick=${()=>setView(view==='preview'?'write':'preview')} className=${'typed text-xs px-2.5 h-7 rounded '+(view==='preview'?'bg-stone-800 text-amber-100':'metal text-stone-800')}>${view==='preview'?'Edit':'Preview'}</button></div>
+      ${view==='mark'&&html`<div className="drop flex items-center gap-2 pl-3 mb-1 flex-wrap typed text-xs text-stone-700">Highlighter
+       ${['yellow','green','pink'].map(c=>html`<button key=${c} onClick=${()=>setHlColor(c)} aria-label=${c+' highlighter'} aria-pressed=${hlColor===c} className=${'w-6 h-6 rounded-full border-2 '+(hlColor===c?'border-stone-800 scale-110':'border-stone-400')} style=${{background:HLC[c]}}></button>`)}
+       <button onClick=${()=>setHlColor('erase')} aria-pressed=${hlColor==='erase'} className=${'px-2 h-6 rounded '+(hlColor==='erase'?'bg-stone-800 text-amber-100':'bg-black/10')}>eraser</button>
+       <label className="flex items-center gap-1"><input type="checkbox" checked=${lens} onChange=${e=>setLens(e.target.checked)}/>magnifier</label>
+       <span className="flex-1"></span>${(cur.hl||[]).length>0&&html`<button className="underline" onClick=${()=>upd(cur.id,{hl:[]})}>clear highlights</button>`}</div>`}
+      ${view==='write'?html`<textarea ref=${taRef} value=${cur.body} onChange=${e=>upd(cur.id,{body:e.target.value})} onSelect=${e=>{const t=e.target.value.slice(e.target.selectionStart,e.target.selectionEnd).trim();setSelW(t?t.split(/\s+/).length:0)}} onKeyDown=${e=>{if((e.ctrlKey||e.metaKey)&&(e.key==='b'||e.key==='i')){e.preventDefault();fmt(e.key)}}} placeholder="Start writing… (Markdown works: **bold**, *italic*, # heading, - list)" aria-label="Page text" className="flex-1 min-h-[240px] md:min-h-0 w-full resize-none outline-none pl-3 text-[17px] text-stone-800"/>`:view==='preview'?html`<div className="flex-1 min-h-[240px] md:min-h-0 overflow-y-auto pl-3 pr-1 text-stone-800"><${Md} text=${cur.body}/></div>`:html`<${Mark} doc=${cur} color=${hlColor} lens=${lens} onChange=${hl=>upd(cur.id,{hl})}/>`}
+      <${CitePad} doc=${cur} onChange=${c=>upd(cur.id,{cites:c})} onInsert=${insertAt}/>
+      <div className="typed text-xs text-stone-600 pl-3 mt-1 pt-1 border-t border-stone-300/70 flex flex-wrap gap-x-4 gap-y-1 items-center">
+       <span title="Words, characters and estimated reading time"><b className="text-stone-800">${words}</b> ${words===1?'word':'words'}, ${chars} characters, about ${mins} min read${selW>0&&view==='write'?', '+selW+' selected':''}</span>
+       <span className="flex-1"></span>
+       <label>folder <select value=${cur.folder} onChange=${e=>{upd(cur.id,{folder:e.target.value});setSel(null)}} className="bg-transparent border-b border-stone-400">${folders.map(f=>html`<option key=${f.id} value=${f.id}>${f.name}</option>`)}</select></label>
+       <label>tag <select value=${cur.tag} onChange=${e=>upd(cur.id,{tag:e.target.value})} className="bg-transparent border-b border-stone-400"><option value="">untagged</option>${tags.map(t=>html`<option key=${t} value=${t}>${t}</option>`)}</select></label>${(cur.stamps||[]).length>0&&html`<button className="underline" onClick=${()=>upd(cur.id,{stamps:[]})}>clear stamps</button>`}</div>
+     </div>`:html`<div className="paper flex-1 rounded-sm flex items-center justify-center text-stone-600 text-center p-8">${!fid?'No folders yet. Add one on the left.':list.length?'Pick a page above.':'No pages in “'+fname+'” for “'+q+'”. Add one with “+ New page” or change the filter.'}</div>`}
+   </section>
+
+   <aside className="flex flex-col gap-5 md:overflow-y-auto md:min-h-0 md:pr-1 md:pb-2" aria-label="Widgets"><${Sticky} key=${'s'+rev}/><${Pomodoro} key=${'p'+rev}/></aside>
+  </main>
+
+  <footer className="shrink-0 relative z-10 flex flex-wrap sm:flex-nowrap items-end justify-between gap-x-2 gap-y-3 px-3 md:px-6 pt-4 pb-1">
+   <div className="flex flex-col items-start gap-0.5 shrink-0">
+    <span className=${'hand text-base leading-none '+(sv.ok?'text-amber-100/80':'text-red-300')}>${sv.ok?'✓ saved'+(sv.t?' '+sv.t:''):'⚠ not saved: back up via the drawer'}</span>
+    <button onClick=${()=>setModal({k:'drawer'})} aria-label="Open desk drawer for backup and restore" className="drawer w-20 h-10 rounded-t flex flex-col items-center justify-center gap-0.5 hover:-translate-y-1 transition-transform">
+     <span className="hand text-amber-100 text-sm leading-none">drawer</span><span className="metal rounded-full w-12 h-2.5 block"></span></button>
+   </div>
+   <${MediaStrip}/>
+   <div className="flex flex-col items-center shrink-0">
+    <button ref=${trashRef} onClick=${()=>setModal({k:'bin'})} aria-label=${'Wastepaper bin, '+trash.length+' pages'} title="Wastepaper bin" className=${'relative '+(wig?'wiggle':'')}>
+     <svg viewBox="0 0 48 56" className="w-10 h-12 drop-shadow-[0_4px_4px_rgba(0,0,0,.6)]">
+      <defs><pattern id="mesh" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><path d="M0 0H6M0 0V6" stroke="#cfd3d6" strokeWidth="1"/></pattern></defs>
+      ${trash.length>0&&html`<circle cx="18" cy="12" r="6" fill="#efe7d2"/><circle cx="29" cy="10" r="5" fill="#f6f0df"/>`}
+      <path d="M5 12 H43 L39 52 Q38 54 36 54 H12 Q10 54 9 52 Z" fill="#2a2d30" fillOpacity=".55" stroke="#aeb4b8" strokeWidth="1.6"/>
+      <path d="M5 12 H43 L39 52 Q38 54 36 54 H12 Q10 54 9 52 Z" fill="url(#mesh)"/>
+      <ellipse cx="24" cy="12" rx="19" ry="3.4" fill="none" stroke="#d8dde0" strokeWidth="2"/><path d="M10 54 H38" stroke="#8d9396" strokeWidth="2.4"/></svg>
+     ${trash.length>0&&html`<span className="absolute -top-1 -right-1 bg-[#b3261e] text-white text-[10px] rounded-full min-w-[18px] h-[18px] flex items-center justify-center typed">${trash.length}</span>`}
+    </button><span className="hand text-amber-100 text-xs leading-none">bin</span>
+   </div>
+  </footer>
+  ${modal&&modal.k==='ask'&&html`<${Ask} ...${modal} onClose=${()=>setModal(null)}/>`}
+  ${modal&&modal.k==='sure'&&html`<${Sure} ...${modal} onClose=${()=>setModal(null)}/>`}
+  ${modal&&modal.k==='fdel'&&html`<${FolderDel} ...${modal} onClose=${()=>setModal(null)}/>`}
+  ${calc&&html`<${Calc} doc=${cur} pos=${calcPos} setPos=${setCalcPos} onClose=${()=>setCalc(false)}/>`}
+  ${modal&&modal.k==='tpl'&&html`<${TplModal} onPick=${makeDoc} onClose=${()=>setModal(null)}/>`}
+  ${modal&&modal.k==='search'&&html`<${SearchModal} docs=${docs} folders=${folders} tags=${tags} sticky=${ls.get('desk.sticky','')} onPage=${d=>{setFolder(d.folder);setQ('All');setSel(d.id);setView('write');setModal(null)}} onTag=${t=>{setQ(t);setModal(null)}} onFolder=${f=>{setFolder(f.id);setSel(null);setModal(null)}} onSticky=${()=>{setModal(null);setTimeout(()=>{const el=document.querySelector('textarea[aria-label="Sticky note"]');if(el){el.focus()}},60)}} onClose=${()=>setModal(null)}/>`}
+  ${modal&&modal.k==='bin'&&html`<${BinModal} trash=${trash} onRestore=${restore} onForget=${id=>setTrash(t=>t.filter(x=>x.id!==id))} onEmpty=${()=>setTrash([])} onClose=${()=>setModal(null)}/>`}
+  ${modal&&modal.k==='drawer'&&html`<${Drawer} install=${ip?()=>{ip.prompt();setIp(null)}:null} dump=${dump} onImport=${importer} onReset=${()=>{setModal(null);reset()}} onClose=${()=>setModal(null)}/>`}
+ </div>`;
+}
+if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+ReactDOM.createRoot(document.getElementById('root')).render(html`<${App}/>`);
+</script>
+</body>
+</html>
